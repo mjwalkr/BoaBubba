@@ -1,6 +1,8 @@
-//
-// Created by seyuu_000 on 11/28/2016.
-//
+/**
+ * Created by Michael Walker on 11/28/2016.
+ *
+ * This class will control the application by the means of updating, rendering, etc.
+ **/
 
 #ifndef BOABUBBA_GAME_H
 #define BOABUBBA_GAME_H
@@ -8,8 +10,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "../include/Timestep.h"
-#include "../include/GameProps.h"
+#include "Timestep.h"
+#include "GameProps.h"
 
 namespace boabubba
 {

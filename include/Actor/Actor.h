@@ -8,12 +8,12 @@
 #define BOABUBBA_ACTOR_H
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#include "../include/GameObject.h"
-#include "../include/GameProps.h"
+#include "GameObject.h"
+#include "GameProps.h"
 
 namespace boabubba
 {
@@ -55,7 +55,7 @@ namespace boabubba
     virtual void render(sf::RenderWindow &window) override;
 
   protected:
-    sf::RectangleShape m_sprite;
+    sf::CircleShape m_sprite;
 
   private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

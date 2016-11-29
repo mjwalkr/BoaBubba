@@ -1,8 +1,8 @@
-//
-// Created by seyuu_000 on 11/28/2016.
-//
+/**
+ * Created by Michael Walker on 11/28/2016.
+ **/
 
-#include "../include/Game.h"
+#include "Game.h"
 
 namespace boabubba
 {

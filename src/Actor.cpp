@@ -2,7 +2,7 @@
  * Created by Michael Walker on 11/26/2016.
  **/
 
-#include "../include/Actor.h"
+#include "Actor/Actor.h"
 
 namespace boabubba
 {
