@@ -1,7 +1,7 @@
 /**
  * Created by Michael Walker on 11/26/2016.
  *
- * Holds properties about the game.
+ * Holds properties related to the game.
  **/
 
 #ifndef BOABUBBA_GAMEPROPS_H
