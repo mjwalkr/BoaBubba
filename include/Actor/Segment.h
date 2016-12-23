@@ -24,16 +24,41 @@ namespace boabubba
     Segment(const sf::Vector2i& position, Segment* follow);
 
     /**
-     *
      * @return the segment that 'this' segment will follow.
      */
     Segment* getFollow() const;
 
     /**
-     *
      * @return the index of 'this' segment in the snake's body.
      */
     const int getIndex() const;
+
+    /**
+     * @return the current displacement traveled by the segment
+     */
+    const float getDist() const;
+
+    /**
+     * @return the position that the following segment should move towards
+     */
+    const sf::Vector2i& getMarker();
+
+    /**
+     * Sets the target position the segment must move towards.
+     */
+    void setMarker(const sf::Vector2i& marker);
+
+    /**
+     * Sets 'this' segment as the front (leading) segment.
+     * @param front
+     */
+    void setFront(const bool front);
+
+    /**
+     * Updates the displacement
+     * @param dist the displacement traveled by the segment
+     */
+    void setDist(const float dist);
 
     /**
      * Updates the actor.
@@ -41,13 +66,47 @@ namespace boabubba
     virtual void update() override;
 
     /**
-     * Updates the direction that the segment will move.
+     * @return whether this segment is the front 'leader' segment.
      */
-    void updateDirection();
+    const bool isFront();
 
   private:
+    /**
+     * Set the index of the segment. The head segment will have an index of 0,
+     * while the next segment will have an index of [next segment index + 1].
+     */
+    void setIndex();
+
+    /**
+    * Updates the direction that the segment will move.
+    */
+    void updateDirection();
+
+    /**
+     * Movement logic for the front 'leader' segment. The segment will update its position and displacement.
+     * The displacement will be obtained by the following segments in order to update their position and displacement.
+     */
+    void segmentMoveAsLeader();
+
+    /**
+     * Movement logic for segements following the front 'leader' segment. The segment will obtain the displacement from
+     * the segment it follows in order to update its position and displacement.
+     */
+    void segmentMoveAsFollower();
+
     Segment* m_follow;
+
+    // Holds the position that the following segment should move towards.
+    // Note: Using the Actor.getGridPrevious() in place of this variable could cause issues
+    // later related to the previous grid location being updated before the following segments
+    // are able to observe it.
+    sf::Vector2i m_marker;
+
+    // Determines whether this segment is the 'leader' segment of all segments following after it.
+    // Note: A segment other than the head will be 'leader' when the segments in front of it are unable to move.
+    bool m_front;
     int m_index;
+    float m_dist; // The displacement of the segment's movement.
   };
 }
 

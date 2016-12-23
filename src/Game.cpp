@@ -34,6 +34,8 @@ namespace boabubba
     timeStep.addFrame();
     while (timeStep.isUpdateRequired())
     {
+      segmentController.preUpdate();
+      segmentController.update();
       // do something here
     }
   }
@@ -43,6 +45,7 @@ namespace boabubba
     window.clear();
 
     // update entities here
+    segmentController.draw(window);
 
     window.display();
   }

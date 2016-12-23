@@ -6,6 +6,11 @@
 
 namespace boabubba
 {
+  Location::Location()
+  {
+
+  }
+
   Location::Location(const int x, const int y)
   {
     m_position = sf::Vector2i(x, y);
@@ -16,12 +21,12 @@ namespace boabubba
     m_position = position;
   }
 
-  bool Location::operator==(const Location& other)
+  bool Location::operator==(const Location other)
   {
     return (m_position.x == other.m_position.x && m_position.y == other.m_position.y);
   }
 
-  bool Location::operator!=(const Location& other)
+  bool Location::operator!=(const Location other)
   {
     return (m_position.x != other.m_position.x || m_position.y != other.m_position.y);
   }

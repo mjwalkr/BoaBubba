@@ -15,6 +15,8 @@
 #include "GameObject.h"
 #include "GameProps.h"
 
+#include <math.h>
+
 namespace boabubba
 {
   enum class Direction { None, Left, Right, Up, Down };
@@ -42,6 +44,8 @@ namespace boabubba
 
     const sf::Vector2i getGridPosition(const sf::Vector2i& grid) const;
 
+    void updateGrid(const Direction direction);
+
     void setDirection(const Direction& direction);
     const Direction& getDirection() const;
 
@@ -50,6 +54,10 @@ namespace boabubba
 
     const bool isVisible() const;
     const bool isSnapped() const;
+
+    void moveGridBased();
+
+    virtual void move();
 
     virtual void update() = 0;
     virtual void render(sf::RenderWindow &window) override;

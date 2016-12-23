@@ -16,6 +16,8 @@ namespace boabubba
   class Location
   {
   public:
+    Location();
+
     /**
      *
      * @param x
@@ -34,14 +36,14 @@ namespace boabubba
      * @param other
      * @return
      */
-    bool operator==(const Location& other);
+    bool operator==(const Location other);
 
     /**
      *
      * @param other
      * @return
      */
-    bool operator!=(const Location& other);
+    bool operator!=(const Location other);
 
     /**
      * Set the (x,y) position of the location.

@@ -8,7 +8,7 @@ namespace boabubba
 {
   Actor::Actor()
   {
-    // TODO: This is temorary code for displaying a placeholder sprite
+    // TODO: This is temporary code for displaying a placeholder sprite
   }
 
   void Actor::setPosition(const sf::Vector2i& position)
@@ -78,6 +78,22 @@ namespace boabubba
     return sf::Vector2i(m_grid.x * GameProps::PROP_GRID_WIDTH, m_grid.y * GameProps::PROP_GRID_HEIGHT);
   }
 
+  void Actor::updateGrid(const Direction direction)
+  {
+    // Update the previous grid position.
+    m_gridPrevious = m_grid;
+
+    // Move the grid (x,y) position.
+    switch(direction)
+    {
+      case Direction::Left: m_grid.x -= 1; break;
+      case Direction::Right: m_grid.x += 1; break;
+      case Direction::Up: m_grid.y -= 1; break;
+      case Direction::Down: m_grid.y += 1; break;
+      default: break;
+    }
+  }
+
   void Actor::setDirection(const Direction& direction)
   {
     m_direction = direction;
@@ -107,6 +123,36 @@ namespace boabubba
   {
     sf::Vector2i pos = getGridPosition(m_grid);
     return (m_posInt.x == pos.x) && (m_posInt.y == pos.y);
+  }
+
+  void Actor::moveGridBased()
+  {
+    const sf::Vector2i myGridPos = getGridPosition(getGrid());
+
+    // Move the actor's position.
+    switch (getDirection())
+    {
+      case boabubba::Direction::Left: m_position.x = std::max(m_position.x - m_speed.x, float(myGridPos.x)); break;
+      case boabubba::Direction::Right: m_position.x = std::min(m_position.x + m_speed.x, float(myGridPos.x)); break;
+      case boabubba::Direction::Up: m_position.y = std::max(m_position.y - m_speed.y, float(myGridPos.y)); break;
+      case boabubba::Direction::Down: m_position.y = std::min(m_position.y + m_speed.y, float(myGridPos.y)); break;
+      default: break;
+    }
+
+    // Snap the position when the actor has traversed to the grid position.
+    if (((m_position.x <= float(myGridPos.x)) && (getDirection() == boabubba::Direction::Left)) ||
+        ((m_position.x >= float(myGridPos.x)) && (getDirection() == boabubba::Direction::Right)) ||
+        ((m_position.y <= float(myGridPos.y)) && (getDirection() == boabubba::Direction::Up)) ||
+        ((m_position.y >= float(myGridPos.y)) && (getDirection() == boabubba::Direction::Down)))
+    {
+      setPosition(sf::Vector2f(static_cast<float>(myGridPos.x), static_cast<float>(myGridPos.y)));
+      setPosInt(sf::Vector2i(myGridPos.x, myGridPos.y));
+    }
+  }
+
+  void Actor::move()
+  {
+    // do nothing here
   }
 
   void Actor::render(sf::RenderWindow& window)

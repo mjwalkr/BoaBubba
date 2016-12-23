@@ -12,6 +12,7 @@
 
 #include "Timestep.h"
 #include "GameProps.h"
+#include "Actor/SegmentController.h"
 
 namespace boabubba
 {
@@ -26,6 +27,8 @@ namespace boabubba
     void lateUpdate();
 
   private:
+    SegmentController segmentController;
+
     sf::RenderWindow window;
     kairos::Timestep timeStep;
     const float dt;
