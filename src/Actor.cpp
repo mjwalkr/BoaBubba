@@ -75,7 +75,7 @@ namespace boabubba
 
   const sf::Vector2i Actor::getGridPosition(const sf::Vector2i& grid) const
   {
-    return sf::Vector2i(m_grid.x * GameProps::PROP_GRID_WIDTH, m_grid.y * GameProps::PROP_GRID_HEIGHT);
+    return sf::Vector2i(grid.x * GameProps::PROP_GRID_WIDTH, grid.y * GameProps::PROP_GRID_HEIGHT);
   }
 
   void Actor::updateGrid(const Direction direction)

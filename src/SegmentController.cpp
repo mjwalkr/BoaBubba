@@ -47,7 +47,7 @@ namespace boabubba
     m_head->setFront(true);
 
     // other
-    for (int i = 1; i < 1; ++i)
+    for (int i = 1; i < 8; ++i)
     {
       ptr.reset(new Segment(sf::Vector2i(0, 0), m_segments.back().get()));
       m_segments.emplace_back(std::move(ptr));
@@ -60,21 +60,47 @@ namespace boabubba
     m_currentFront = 0;
   }
 
+  void SegmentController::snapAllSegments()
+  {
+    // When the front segment becomes snapped, all of the other segments should be snapped.
+    const Segment* front = m_segments[m_currentFront].get();
+    if (front->isSnapped())
+    {
+      for (auto& itr : m_segments)
+      {
+        // snap the segment to the grid
+        const sf::Vector2i gridPos = itr->getGridPosition(itr->getGrid());
+        itr->setPosition(sf::Vector2f(static_cast<float>(gridPos.x), static_cast<float>(gridPos.y)));
+        itr->setPosInt(sf::Vector2i(gridPos.x, gridPos.y));
+        // reset the dist of the segment so the dirty value will not remain
+        itr->setDist(0.f);
+        // set the direction (should we update the grid as well..)
+        itr->setDirection(boabubba::Direction::None);
+        // reset the segment's front (leading) variable
+        itr->setFront(false);
+      }
+      m_currentFront = 0;
+    }
+  }
+
   void SegmentController::update()
   {
     for (auto& itr : m_segments)
     {
       // Set the marker for the follow segment.
       // We can't set the marker every time the update method is called, however.
-      // Option 1: Set the marker only when 'itr' is snapped (do not set the head segment's marker here).
+      // Set the marker only when 'itr' is snapped (do not set the head segment's marker here).
       if (itr->getFollow() && itr->isSnapped())
         itr->setMarker(itr->getGrid());
 
       itr->update();
 
-      // If the head segment is the front, and is snapped to the grid, snap the segment to the grid.
-      // Or, should it be, when the front segment becomes snapped, all of the other segments should be snapped.
+      // When the segment that (itr) is following is not moving.
+      if (itr->isFront())
+        m_currentFront = itr->getIndex();
     }
+    // Snap the segments when the front segment is snapped.
+    snapAllSegments();
   }
 
   void SegmentController::preUpdate()
@@ -82,7 +108,9 @@ namespace boabubba
     if (!m_head) return;
 
     if (m_head->isSnapped())
+    {
       moveOnPath(); // finds the path to the target
+    }
   }
 
   void SegmentController::moveOnPath()

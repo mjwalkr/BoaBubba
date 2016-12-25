@@ -43,6 +43,9 @@ namespace boabubba
     void setHead(Segment* segment);
 
     void init();
+
+    void snapAllSegments();
+
     /**
      * Prepares the head segment for movement. Decides which type of movement the head segment
      * should perform (follow target's calculated path; follow target's immediate path)

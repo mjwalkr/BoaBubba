@@ -8,6 +8,7 @@ namespace boabubba
 {
   Segment::Segment(const sf::Vector2i& position, Segment* follow)
     : m_follow(follow)
+    , m_front(false)
   {
     setIndex(); // automatically set the index
 
@@ -73,6 +74,14 @@ namespace boabubba
 
   void Segment::update()
   {
+    // Update the segment's direction (note: the head segment will not be updated from this method)
+    updateDirection();
+
+    // Set the segment as the front.
+    // When 'this' segment is the head, and it is moving towards the grid position, or
+    // the segment 'this' is following isn't moving (could replace with checking if Direction = None?)
+    m_front = ((!m_follow && !isSnapped()) || (m_follow && m_follow->getDist() == 0 && getDirection() != boabubba::Direction::None));
+
     // The head of snake's movement.
     if (isFront())
     {
@@ -109,16 +118,11 @@ namespace boabubba
   {
     if (!m_follow) return;
 
-    updateDirection();
-
     // When the segment has a direction to move in..
     if (!isSnapped())
     {
-      sf::Vector2i myGridPos = getGridPosition(getGrid());
-      sf::Vector2i myGridPrevPos = getGridPosition(getGridPrevious());
-      sf::Vector2i otherGridPos = m_follow->getGridPosition(m_follow->getGrid());
-      sf::Vector2i otherGridPrevPos = m_follow->getGridPosition(m_follow->getGridPrevious());
-      float dist = m_follow->getDist();
+      const sf::Vector2i myGridPrevPos = getGridPosition(getGridPrevious());
+      const float dist = m_follow->getDist();
 
       switch(getDirection())
       {
@@ -127,9 +131,9 @@ namespace boabubba
         case boabubba::Direction::Up: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y - dist)); break;
         case boabubba::Direction::Down: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y + dist)); break;
       }
-
-
+      // Do not snap the segments here, snap them when the front segment is snapped.
     }
+    setDist(m_follow->getDist());
   }
 
   void Segment::updateDirection()
