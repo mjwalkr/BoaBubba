@@ -12,7 +12,9 @@
 
 #include "Timestep.h"
 #include "GameProps.h"
+#include "Actor/PlayerController.h"
 #include "Actor/SegmentController.h"
+#include "DebugMessages.h"
 
 namespace boabubba
 {
@@ -28,6 +30,8 @@ namespace boabubba
 
   private:
     SegmentController segmentController;
+    PlayerController playerController;
+    DebugMessages debugMessages;
 
     sf::RenderWindow window;
     kairos::Timestep timeStep;

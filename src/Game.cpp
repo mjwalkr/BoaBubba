@@ -10,6 +10,7 @@ namespace boabubba
       : dt(timeStep.getStepAsFloat())
   {
     window.create(sf::VideoMode(GameProps::PROP_SCREEN_WIDTH, GameProps::PROP_SCREEN_HEIGHT, 32), "BoaBubba");
+
   }
 
   void Game::run()
@@ -34,7 +35,13 @@ namespace boabubba
     timeStep.addFrame();
     while (timeStep.isUpdateRequired())
     {
+      playerController.preUpdate();
+
+      segmentController.setTargetPosition(playerController.getPlayerGridPrevious());
+
       segmentController.preUpdate();
+
+      playerController.update();
       segmentController.update();
       // do something here
     }
@@ -45,7 +52,16 @@ namespace boabubba
     window.clear();
 
     // update entities here
-    segmentController.draw(window);
+    playerController.render(window);
+    segmentController.render(window);
+
+    std::ostringstream ss;
+    ss << "Player Grid: (" << playerController.getPlayerGrid().x << ", " << playerController.getPlayerGrid().y << ")";
+    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_GRID);
+    ss.str("");
+    ss << "Player Position: " << playerController.getPlayerPosition().x << ", " << playerController.getPlayerPosition().y << ")";
+    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_POSITION);
+    debugMessages.render(window);
 
     window.display();
   }

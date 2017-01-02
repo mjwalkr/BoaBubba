@@ -40,11 +40,6 @@ namespace boabubba
     const sf::Vector2i getTargetPosition();
 
     void setTargetPosition(const sf::Vector2i& position);
-    void setHead(Segment* segment);
-
-    void init();
-
-    void snapAllSegments();
 
     /**
      * Prepares the head segment for movement. Decides which type of movement the head segment
@@ -53,9 +48,13 @@ namespace boabubba
     void preUpdate();
     void update();
     // TODO - this method is temporary, as a tree structure will be used to draw the actors.
-    void draw(sf::RenderWindow& window);
+    void render(sf::RenderWindow& window);
 
   private:
+    void init();
+    void setHead(Segment* segment);
+    void snapAllSegments();
+    void refreshSegmentLocations(const std::unique_ptr<Segment>& segment);
     /**
     * Calls findPathXXX method to calculate the path to the target and set's the head
     * segment's properties in order to arrive to the destination.
@@ -73,10 +72,11 @@ namespace boabubba
     std::unordered_map<int, Location> m_path;
     Location m_currLoc; // represents the current iteration (Location) in the found path.
     Location m_endLoc; // represents the end (Location) of the found path.
-    bool m_success; // Holds whether we have found a path to the target position.
-    bool m_allSnapped; // -- to be determined
+    bool m_success; // holds whether we have found a path to the target position.
 
     std::vector<std::unique_ptr<Segment>> m_segments;
+    // holds map of segments; used for locating where segments are on the game field. each position mapped, holds the number of segments occupying the position
+    std::unordered_map<int, int> m_segmentMap;
   };
 }
 

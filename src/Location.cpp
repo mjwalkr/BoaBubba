@@ -36,16 +36,6 @@ namespace boabubba
     return m_position;
   }
 
-  void Location::setPosition(const int x, const int y)
-  {
-    m_position = sf::Vector2i(x, y);
-  }
-
-  void Location::setPosition(const sf::Vector2i& position)
-  {
-    m_position = position;
-  }
-
   int Location::getCoords(const Location& location)
   {
     const sf::Vector2i position = location.getPosition();

@@ -16,7 +16,9 @@ namespace boabubba
   public:
     GameObject() { }
     virtual ~GameObject() { }
+    virtual void preUpdate() = 0;
     virtual void update() = 0;
+    virtual void postUpdate() = 0;
     virtual void render(sf::RenderWindow& window) = 0;
   };
 }

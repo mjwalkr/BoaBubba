@@ -2,6 +2,9 @@
  * Created by Michael Walker on 11/26/2016.
  *
  * This class is used to represent the grid spaces of the game world.
+ * Note: the "position" used for the location is the grid coordinate * grid width/height
+ * For example:
+ * If the grid = (2, 0), the position you should use for this location is 2 * grid width, 0 * grid height.
  **/
 
 #ifndef BOABUBBA_LOCATION_H
@@ -44,19 +47,6 @@ namespace boabubba
      * @return
      */
     bool operator!=(const Location other);
-
-    /**
-     * Set the (x,y) position of the location.
-     * @param x
-     * @param y
-     */
-    void setPosition(const int x, const int y);
-
-    /**
-     * Set the (x,y) position of the location.
-     * @param position
-     */
-    void setPosition(const sf::Vector2i& position);
 
     /**
      * Returns the (x,y) position of the location.

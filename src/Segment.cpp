@@ -6,21 +6,26 @@
 
 namespace boabubba
 {
-  Segment::Segment(const sf::Vector2i& position, Segment* follow)
+  Segment::Segment(const Grid& grid, Segment* follow)
     : m_follow(follow)
     , m_front(false)
   {
     setIndex(); // automatically set the index
 
-    setPosition(position);
-    setSpeed(sf::Vector2f(0.3f, 0.3f));
-    setDirection(boabubba::Direction::None);
+    setPosition(grid);
+    setSpeed(sf::Vector2f(0.8f, 0.9f));
+    setDirection(ActorProps::Direction::None);
+    setLocation(Location(grid.x * GameProps::PROP_GRID_WIDTH,
+                         grid.y * GameProps::PROP_GRID_HEIGHT));
 
-    float x = static_cast<float>(position.x);
-    float y = static_cast<float>(position.y);
+    float x = static_cast<float>(grid.x);
+    float y = static_cast<float>(grid.y);
 
     m_sprite = sf::CircleShape();
-    m_sprite.setFillColor(sf::Color::Green);
+    if (m_index == 0)
+      m_sprite.setFillColor(sf::Color::Blue);
+    else
+      m_sprite.setFillColor(sf::Color::Green);
     m_sprite.setRadius(GameProps::PROP_GRID_WIDTH / 2);
     m_sprite.setPosition(sf::Vector2f(x, y));
   }
@@ -47,12 +52,12 @@ namespace boabubba
     return m_dist;
   }
 
-  const sf::Vector2i& Segment::getMarker()
+  const Grid& Segment::getMarker()
   {
     return m_marker;
   }
 
-  void Segment::setMarker(const sf::Vector2i& marker)
+  void Segment::setMarker(const Grid& marker)
   {
     m_marker = marker;
   }
@@ -72,6 +77,9 @@ namespace boabubba
     return m_front;
   }
 
+  void Segment::preUpdate()
+  {}
+
   void Segment::update()
   {
     // Update the segment's direction (note: the head segment will not be updated from this method)
@@ -80,7 +88,7 @@ namespace boabubba
     // Set the segment as the front.
     // When 'this' segment is the head, and it is moving towards the grid position, or
     // the segment 'this' is following isn't moving (could replace with checking if Direction = None?)
-    m_front = ((!m_follow && !isSnapped()) || (m_follow && m_follow->getDist() == 0 && getDirection() != boabubba::Direction::None));
+    m_front = ((!m_follow && !isSnapped()) || (m_follow && m_follow->getDist() == 0 && getDirection() != ActorProps::Direction::None));
 
     // The head of snake's movement.
     if (isFront())
@@ -96,15 +104,18 @@ namespace boabubba
     m_sprite.setPosition(getPosition());
   }
 
+  void Segment::postUpdate()
+  {}
+
   void Segment::segmentMoveAsLeader()
   {
     moveGridBased();
 
-    if (getDirection() == boabubba::Direction::Left || getDirection() == boabubba::Direction::Right)
+    if (getDirection() == ActorProps::Direction::Left || getDirection() == ActorProps::Direction::Right)
     {
       setDist(std::abs(getPosition().x - getGridPosition(getGridPrevious()).x));
     }
-    else if (getDirection() == boabubba::Direction::Up || getDirection() == boabubba::Direction::Down)
+    else if (getDirection() == ActorProps::Direction::Up || getDirection() == ActorProps::Direction::Down)
     {
       setDist(std::abs(getPosition().y - getGridPosition(getGridPrevious()).y));
     }
@@ -126,10 +137,10 @@ namespace boabubba
 
       switch(getDirection())
       {
-        case boabubba::Direction::Left: setPosition(sf::Vector2f(myGridPrevPos.x - dist, getPosition().y)); break;
-        case boabubba::Direction::Right: setPosition(sf::Vector2f(myGridPrevPos.x + dist, getPosition().y)); break;
-        case boabubba::Direction::Up: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y - dist)); break;
-        case boabubba::Direction::Down: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y + dist)); break;
+        case ActorProps::Direction::Left: setPosition(sf::Vector2f(myGridPrevPos.x - dist, getPosition().y)); break;
+        case ActorProps::Direction::Right: setPosition(sf::Vector2f(myGridPrevPos.x + dist, getPosition().y)); break;
+        case ActorProps::Direction::Up: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y - dist)); break;
+        case ActorProps::Direction::Down: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y + dist)); break;
       }
       // Do not snap the segments here, snap them when the front segment is snapped.
     }
@@ -142,24 +153,24 @@ namespace boabubba
     if (!getFollow()) return;
 
     // todo could use another variable to restrict updating the direction when not needed
-    if (getDirection() == boabubba::Direction::None)
+    if (getDirection() == ActorProps::Direction::None)
     {
-      boabubba::Direction dir = boabubba::Direction::None;
+      ActorProps::Direction dir = ActorProps::Direction::None;
       if (getGrid().x > m_follow->getMarker().x)
       {
-        dir = boabubba::Direction::Left;
+        dir = ActorProps::Direction::Left;
       }
       else if (getGrid().x < m_follow->getMarker().x)
       {
-        dir = boabubba::Direction::Right;
+        dir = ActorProps::Direction::Right;
       }
       else if (getGrid().y > m_follow->getMarker().y)
       {
-        dir = boabubba::Direction::Up;
+        dir = ActorProps::Direction::Up;
       }
       else if (getGrid().y < m_follow->getMarker().y)
       {
-        dir = boabubba::Direction::Down;
+        dir = ActorProps::Direction::Down;
       }
 
       setDirection(dir);

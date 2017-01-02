@@ -39,7 +39,8 @@ namespace boabubba
 
     // Create the segments.
     // head
-    std::unique_ptr<Segment> ptr(new Segment(sf::Vector2i(0, 0), nullptr)); // position, follow
+    std::unique_ptr<Segment> ptr(new Segment(Grid(0, 0), nullptr)); // position, follow
+    m_segmentMap[ptr->getGrid().getCoords()] = 1;
     m_segments.emplace_back(std::move(ptr));
     setHead(m_segments.back().get()); // sets the head segment once
 
@@ -47,9 +48,10 @@ namespace boabubba
     m_head->setFront(true);
 
     // other
-    for (int i = 1; i < 8; ++i)
+    for (int i = 1; i < 10; ++i)
     {
-      ptr.reset(new Segment(sf::Vector2i(0, 0), m_segments.back().get()));
+      ptr.reset(new Segment(Grid(0, 0), m_segments.back().get()));
+      m_segmentMap[ptr->getGrid().getCoords()]++;
       m_segments.emplace_back(std::move(ptr));
     }
 
@@ -75,11 +77,39 @@ namespace boabubba
         // reset the dist of the segment so the dirty value will not remain
         itr->setDist(0.f);
         // set the direction (should we update the grid as well..)
-        itr->setDirection(boabubba::Direction::None);
+        itr->setDirection(ActorProps::Direction::None);
         // reset the segment's front (leading) variable
         itr->setFront(false);
+
+        // update the segment locations map
+        refreshSegmentLocations(itr);
       }
       m_currentFront = 0;
+    }
+  }
+
+  void SegmentController::refreshSegmentLocations(const std::unique_ptr<Segment>& segment)
+  {
+    // Check if the segment has even moved
+    if (segment->getGrid() != segment->getGridPrevious())
+    {
+      // Check if another segment has already occupied the previous grid position
+      // Obtain the coordinates of the previous grid position
+      int coord = segment->getGridPrevious().getCoords();
+      if (m_segmentMap.find(coord) != m_segmentMap.end() && m_segmentMap[coord] > 0)
+      {
+        m_segmentMap[coord]--;
+      }
+      // Add the segment's new coordinate to the map
+      coord = segment->getGrid().getCoords();
+      if (m_segmentMap.find(coord) != m_segmentMap.end())
+      {
+        m_segmentMap[coord]++;
+      }
+      else
+      {
+        m_segmentMap[coord] = 1;
+      }
     }
   }
 
@@ -107,7 +137,8 @@ namespace boabubba
   {
     if (!m_head) return;
 
-    if (m_head->isSnapped())
+    // Only allow the head segment to find a path when it is the front segment and snapped.
+    if (m_currentFront == 0 && m_head->isSnapped())
     {
       moveOnPath(); // finds the path to the target
     }
@@ -158,15 +189,15 @@ namespace boabubba
       }
 
       // Decide the next direction the head segment should move towards.
-      boabubba::Direction dir = boabubba::Direction::None;
+      ActorProps::Direction dir = ActorProps::Direction::None;
       if (m_head->getGridPosition(m_head->getGrid()).x > m_currLoc.getPosition().x)
-        dir = boabubba::Direction::Left;
+        dir = ActorProps::Direction::Left;
       else if (m_head->getGridPosition(m_head->getGrid()).x < m_currLoc.getPosition().x)
-        dir = boabubba::Direction::Right;
+        dir = ActorProps::Direction::Right;
       else if (m_head->getGridPosition(m_head->getGrid()).y > m_currLoc.getPosition().y)
-        dir = boabubba::Direction::Up;
+        dir = ActorProps::Direction::Up;
       else if (m_head->getGridPosition(m_head->getGrid()).y < m_currLoc.getPosition().y)
-        dir = boabubba::Direction::Down;
+        dir = ActorProps::Direction::Down;
 
       m_head->updateGrid(dir);
       m_head->setDirection(dir);
@@ -176,8 +207,8 @@ namespace boabubba
       // A path could not be found; The head segment will continue to move in the direction
       // it was initially heading in, possibly resulting in a collision.
       // For now, we will just stop the head segment from moving.
-      m_head->updateGrid(boabubba::Direction::None);
-      m_head->setDirection(boabubba::Direction::None);
+      m_head->updateGrid(ActorProps::Direction::None);
+      m_head->setDirection(ActorProps::Direction::None);
     }
 
     // The head uses the grid previous because its grid position has been updated.
@@ -247,11 +278,12 @@ namespace boabubba
     return false;
   }
 
-  void SegmentController::draw(sf::RenderWindow& window)
+  void SegmentController::render(sf::RenderWindow& window)
   {
     for (auto& itr : m_segments)
     {
-      window.draw(*(itr.get())); // Dereference the pointer to obtain reference.
+      //window.draw(*(itr.get())); // Dereference the pointer to obtain reference.
+      itr.get()->render(window);
     }
   }
 }

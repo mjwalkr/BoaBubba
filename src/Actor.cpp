@@ -11,10 +11,16 @@ namespace boabubba
     // TODO: This is temporary code for displaying a placeholder sprite
   }
 
-  void Actor::setPosition(const sf::Vector2i& position)
+  void Actor::setPosition(const Grid& position)
   {
-    m_position.x = static_cast<float>(position.x);
-    m_position.y = static_cast<float>(position.y);
+    m_position.x = static_cast<float>(position.x * GameProps::PROP_GRID_WIDTH);
+    m_position.y = static_cast<float>(position.y * GameProps::PROP_GRID_HEIGHT);
+
+    m_posInt.x = position.x * GameProps::PROP_GRID_WIDTH;
+    m_posInt.y = position.y * GameProps::PROP_GRID_HEIGHT;
+
+    m_grid = position;
+    m_gridPrevious = position;
   }
 
   void Actor::setPosition(const sf::Vector2f& position)
@@ -27,10 +33,10 @@ namespace boabubba
     return m_position;
   }
 
-  void Actor::setPositionPrevious(const sf::Vector2i& position)
+  void Actor::setPositionPrevious(const Grid& position)
   {
-    m_positionPrevious.x = static_cast<float>(position.x);
-    m_positionPrevious.y = static_cast<float>(position.y);
+    m_positionPrevious.x = static_cast<float>(position.x * GameProps::PROP_GRID_WIDTH);
+    m_positionPrevious.y = static_cast<float>(position.y * GameProps::PROP_GRID_HEIGHT);
   }
 
   void Actor::setPositionPrevious(const sf::Vector2f& position)
@@ -53,32 +59,32 @@ namespace boabubba
     return m_posInt;
   }
 
-  void Actor::setGrid(const sf::Vector2i& grid)
+  void Actor::setGrid(const Grid& grid)
   {
     m_grid = grid;
   }
 
-  const sf::Vector2i& Actor::getGrid() const
+  const Grid& Actor::getGrid() const
   {
     return m_grid;
   }
 
-  void Actor::setGridPrevious(const sf::Vector2i& grid)
+  void Actor::setGridPrevious(const Grid& grid)
   {
     m_gridPrevious = grid;
   }
 
-  const sf::Vector2i& Actor::getGridPrevious() const
+  const Grid& Actor::getGridPrevious() const
   {
     return m_gridPrevious;
   }
 
-  const sf::Vector2i Actor::getGridPosition(const sf::Vector2i& grid) const
+  const Grid Actor::getGridPosition(const Grid& grid) const
   {
-    return sf::Vector2i(grid.x * GameProps::PROP_GRID_WIDTH, grid.y * GameProps::PROP_GRID_HEIGHT);
+    return Grid(grid.x * GameProps::PROP_GRID_WIDTH, grid.y * GameProps::PROP_GRID_HEIGHT);
   }
 
-  void Actor::updateGrid(const Direction direction)
+  void Actor::updateGrid(const ActorProps::Direction direction)
   {
     // Update the previous grid position.
     m_gridPrevious = m_grid;
@@ -86,22 +92,32 @@ namespace boabubba
     // Move the grid (x,y) position.
     switch(direction)
     {
-      case Direction::Left: m_grid.x -= 1; break;
-      case Direction::Right: m_grid.x += 1; break;
-      case Direction::Up: m_grid.y -= 1; break;
-      case Direction::Down: m_grid.y += 1; break;
+      case ActorProps::Direction::Left: m_grid.x -= 1; break;
+      case ActorProps::Direction::Right: m_grid.x += 1; break;
+      case ActorProps::Direction::Up: m_grid.y -= 1; break;
+      case ActorProps::Direction::Down: m_grid.y += 1; break;
       default: break;
     }
   }
 
-  void Actor::setDirection(const Direction& direction)
+  void Actor::setDirection(const ActorProps::Direction& direction)
   {
     m_direction = direction;
   }
 
-  const Direction& Actor::getDirection() const
+  const ActorProps::Direction& Actor::getDirection() const
   {
     return m_direction;
+  }
+
+  void Actor::setLocation(const Location &location)
+  {
+    m_location = location;
+  }
+
+  const Location& Actor::getLocation() const
+  {
+    return m_location;
   }
 
   void Actor::setSpeed(const sf::Vector2f& speed)
@@ -132,18 +148,18 @@ namespace boabubba
     // Move the actor's position.
     switch (getDirection())
     {
-      case boabubba::Direction::Left: m_position.x = std::max(m_position.x - m_speed.x, float(myGridPos.x)); break;
-      case boabubba::Direction::Right: m_position.x = std::min(m_position.x + m_speed.x, float(myGridPos.x)); break;
-      case boabubba::Direction::Up: m_position.y = std::max(m_position.y - m_speed.y, float(myGridPos.y)); break;
-      case boabubba::Direction::Down: m_position.y = std::min(m_position.y + m_speed.y, float(myGridPos.y)); break;
+      case ActorProps::Direction::Left: m_position.x = std::max(m_position.x - m_speed.x, float(myGridPos.x)); break;
+      case ActorProps::Direction::Right: m_position.x = std::min(m_position.x + m_speed.x, float(myGridPos.x)); break;
+      case ActorProps::Direction::Up: m_position.y = std::max(m_position.y - m_speed.y, float(myGridPos.y)); break;
+      case ActorProps::Direction::Down: m_position.y = std::min(m_position.y + m_speed.y, float(myGridPos.y)); break;
       default: break;
     }
 
     // Snap the position when the actor has traversed to the grid position.
-    if (((m_position.x <= float(myGridPos.x)) && (getDirection() == boabubba::Direction::Left)) ||
-        ((m_position.x >= float(myGridPos.x)) && (getDirection() == boabubba::Direction::Right)) ||
-        ((m_position.y <= float(myGridPos.y)) && (getDirection() == boabubba::Direction::Up)) ||
-        ((m_position.y >= float(myGridPos.y)) && (getDirection() == boabubba::Direction::Down)))
+    if (((m_position.x <= float(myGridPos.x)) && (getDirection() == ActorProps::Direction::Left)) ||
+        ((m_position.x >= float(myGridPos.x)) && (getDirection() == ActorProps::Direction::Right)) ||
+        ((m_position.y <= float(myGridPos.y)) && (getDirection() == ActorProps::Direction::Up)) ||
+        ((m_position.y >= float(myGridPos.y)) && (getDirection() == ActorProps::Direction::Down)))
     {
       setPosition(sf::Vector2f(static_cast<float>(myGridPos.x), static_cast<float>(myGridPos.y)));
       setPosInt(sf::Vector2i(myGridPos.x, myGridPos.y));

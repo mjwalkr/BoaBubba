@@ -16,6 +16,7 @@ namespace boabubba
     static const int PROP_SCREEN_HEIGHT = 480;
     static const int PROP_GRID_WIDTH = 32;
     static const int PROP_GRID_HEIGHT = 32;
+    static const int PROP_SCREEN_WIDTH_IN_GRIDS = 640 / 32; // PROP_SCREEN_WIDTH / PROP_GRID_WIDTH
   };
 }
 

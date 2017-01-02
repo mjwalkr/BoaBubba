@@ -21,7 +21,7 @@ namespace boabubba
      * @param position the grid position of the segment.
      * @param follow the segment 'this' segment will follow.
      */
-    Segment(const sf::Vector2i& position, Segment* follow);
+    Segment(const Grid& grid, Segment* follow);
 
     /**
      * @return the segment that 'this' segment will follow.
@@ -41,12 +41,12 @@ namespace boabubba
     /**
      * @return the position that the following segment should move towards
      */
-    const sf::Vector2i& getMarker();
+    const Grid& getMarker();
 
     /**
-     * Sets the target position the segment must move towards.
+     * Sets the target position the segment following 'this' segment must move towards.
      */
-    void setMarker(const sf::Vector2i& marker);
+    void setMarker(const Grid& marker);
 
     /**
      * Sets 'this' segment as the front (leading) segment.
@@ -61,9 +61,19 @@ namespace boabubba
     void setDist(const float dist);
 
     /**
+     * Update that should be called before, update()
+     */
+    virtual void preUpdate() override;
+
+    /**
      * Updates the actor.
      */
     virtual void update() override;
+
+    /**
+     * Update that should be done after, update()
+     */
+    virtual void postUpdate() override;
 
     /**
      * @return whether this segment is the front 'leader' segment.
@@ -100,7 +110,7 @@ namespace boabubba
     // Note: Using the Actor.getGridPrevious() in place of this variable could cause issues
     // later related to the previous grid location being updated before the following segments
     // are able to observe it.
-    sf::Vector2i m_marker;
+    Grid m_marker;
 
     // Determines whether this segment is the 'leader' segment of all segments following after it.
     // Note: A segment other than the head will be 'leader' when the segments in front of it are unable to move.
