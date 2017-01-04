@@ -253,10 +253,39 @@ namespace boabubba
       const Location topLoc = Location(current.getPosition().x, topPos);
       const Location bottomLoc = Location(current.getPosition().x, bottomPos);
 
-      const bool left = (leftPos >= 0);
-      const bool right = (rightPos < GameProps::PROP_SCREEN_WIDTH);
-      const bool top = (topPos >= 0);
-      const bool bottom = (bottomPos < GameProps::PROP_SCREEN_HEIGHT);
+      int leftSegCol = 0;
+      int rightSegCol = 0;
+      int topSegCol = 0;
+      int bottomSegCol = 0;
+      const Grid leftGrid(leftPos / GameProps::PROP_GRID_WIDTH, current.getPosition().y / GameProps::PROP_GRID_HEIGHT);
+      const Grid rightGrid(rightPos / GameProps::PROP_GRID_WIDTH, current.getPosition().y / GameProps::PROP_GRID_HEIGHT);
+      const Grid topGrid(current.getPosition().x / GameProps::PROP_GRID_WIDTH, topPos / GameProps::PROP_GRID_HEIGHT);
+      const Grid bottomGrid(current.getPosition().x / GameProps::PROP_GRID_WIDTH, bottomPos / GameProps::PROP_GRID_HEIGHT);
+
+      if (m_segmentMap.find(leftGrid.getCoords()) != m_segmentMap.end())
+      {
+        leftSegCol = m_segmentMap[leftGrid.getCoords()];
+      }
+
+      if (m_segmentMap.find(rightGrid.getCoords()) != m_segmentMap.end())
+      {
+        rightSegCol = m_segmentMap[rightGrid.getCoords()];
+      }
+
+      if (m_segmentMap.find(topGrid.getCoords()) != m_segmentMap.end())
+      {
+        topSegCol = m_segmentMap[topGrid.getCoords()];
+      }
+
+      if (m_segmentMap.find(bottomGrid.getCoords()) != m_segmentMap.end())
+      {
+        bottomSegCol = m_segmentMap[bottomGrid.getCoords()];
+      }
+
+      const bool left = (leftPos >= 0) && (leftSegCol == 0);
+      const bool right = (rightPos < GameProps::PROP_SCREEN_WIDTH) && (rightSegCol == 0);
+      const bool top = (topPos >= 0) && (topSegCol == 0);
+      const bool bottom = (bottomPos < GameProps::PROP_SCREEN_HEIGHT) && (bottomSegCol == 0);
 
       std::vector<Location> locations;
 
