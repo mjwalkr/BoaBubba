@@ -13,7 +13,7 @@ namespace boabubba
     setIndex(); // automatically set the index
 
     setPosition(grid);
-    setSpeed(sf::Vector2f(0.8f, 0.9f));
+    setSpeed(sf::Vector2f(1.02f, 1.02f));
     setDirection(ActorProps::Direction::None);
     setLocation(Location(grid.x * GameProps::PROP_GRID_WIDTH,
                          grid.y * GameProps::PROP_GRID_HEIGHT));
@@ -113,11 +113,11 @@ namespace boabubba
 
     if (getDirection() == ActorProps::Direction::Left || getDirection() == ActorProps::Direction::Right)
     {
-      setDist(std::abs(getPosition().x - getGridPosition(getGridPrevious()).x));
+      setDist(std::abs(getPosition().x - getGridPosition(getGridCurrent()).x));
     }
     else if (getDirection() == ActorProps::Direction::Up || getDirection() == ActorProps::Direction::Down)
     {
-      setDist(std::abs(getPosition().y - getGridPosition(getGridPrevious()).y));
+      setDist(std::abs(getPosition().y - getGridPosition(getGridCurrent()).y));
     }
     else
     {
@@ -132,15 +132,15 @@ namespace boabubba
     // When the segment has a direction to move in..
     if (!isSnapped())
     {
-      const sf::Vector2i myGridPrevPos = getGridPosition(getGridPrevious());
+      const sf::Vector2i myGridCurrPos = getGridPosition(getGridCurrent());
       const float dist = m_follow->getDist();
 
       switch(getDirection())
       {
-        case ActorProps::Direction::Left: setPosition(sf::Vector2f(myGridPrevPos.x - dist, getPosition().y)); break;
-        case ActorProps::Direction::Right: setPosition(sf::Vector2f(myGridPrevPos.x + dist, getPosition().y)); break;
-        case ActorProps::Direction::Up: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y - dist)); break;
-        case ActorProps::Direction::Down: setPosition(sf::Vector2f(getPosition().x, myGridPrevPos.y + dist)); break;
+        case ActorProps::Direction::Left: setPosition(sf::Vector2f(myGridCurrPos.x - dist, getPosition().y)); break;
+        case ActorProps::Direction::Right: setPosition(sf::Vector2f(myGridCurrPos.x + dist, getPosition().y)); break;
+        case ActorProps::Direction::Up: setPosition(sf::Vector2f(getPosition().x, myGridCurrPos.y - dist)); break;
+        case ActorProps::Direction::Down: setPosition(sf::Vector2f(getPosition().x, myGridCurrPos.y + dist)); break;
       }
       // Do not snap the segments here, snap them when the front segment is snapped.
     }

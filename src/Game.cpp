@@ -37,7 +37,7 @@ namespace boabubba
     {
       playerController.preUpdate();
 
-      segmentController.setTargetPosition(playerController.getPlayerGridPrevious());
+      segmentController.setTarget(playerController.getPlayer());
 
       segmentController.preUpdate();
 
@@ -61,6 +61,9 @@ namespace boabubba
     ss.str("");
     ss << "Player Position: " << playerController.getPlayerPosition().x << ", " << playerController.getPlayerPosition().y << ")";
     debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_POSITION);
+    ss.str("");
+    ss << "Snake Tight Follow: " << segmentController.isTightFollow();
+    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_SNAKE_TIGHT_FOLLOW);
     debugMessages.render(window);
 
     window.display();

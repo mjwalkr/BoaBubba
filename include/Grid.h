@@ -15,6 +15,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "GameProps.h"
+#include <Actor/ActorProps.h>
 
 namespace boabubba
 {
@@ -23,7 +24,20 @@ namespace boabubba
   public:
     Grid();
     Grid(int x, int y);
+
+    void move(const ActorProps::Direction& direction);
+
+    // Returns a 'dummy' Grid object that is to the (left, right, up, down) direction of 'this' Grid.
+    Grid getGridAdjacentTo(const ActorProps::Direction& direction) const;
+
     const int getCoords() const;
+
+    const bool equals(const Grid& other) const;
+
+    static const bool equals(const Grid& gridA, const Grid& gridB)
+    {
+      return gridA.x == gridB.x && gridA.y == gridB.y;
+    }
   };
 }
 

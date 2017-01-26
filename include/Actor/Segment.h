@@ -107,8 +107,8 @@ namespace boabubba
     Segment* m_follow;
 
     // Holds the position that the following segment should move towards.
-    // Note: Using the Actor.getGridPrevious() in place of this variable could cause issues
-    // later related to the previous grid location being updated before the following segments
+    // Note: Using the Actor.getGridCurrent() in place of this variable could cause issues
+    // later related to the current grid location being updated before the following segments
     // are able to observe it.
     Grid m_marker;
 

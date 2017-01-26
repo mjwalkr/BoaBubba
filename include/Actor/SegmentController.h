@@ -37,9 +37,10 @@ namespace boabubba
     SegmentController();
     ~SegmentController();
 
-    const sf::Vector2i getTargetPosition();
+    void setTarget(Actor* actor);
+    const Actor* getTarget();
 
-    void setTargetPosition(const sf::Vector2i& position);
+    const bool isTightFollow() const;
 
     /**
      * Prepares the head segment for movement. Decides which type of movement the head segment
@@ -55,6 +56,11 @@ namespace boabubba
     void setHead(Segment* segment);
     void snapAllSegments();
     void refreshSegmentLocations(const std::unique_ptr<Segment>& segment);
+
+    const bool isHeadReady() const;
+    const bool shouldTightFollow() const;
+    void moveTightFollow();
+
     /**
     * Calls findPathXXX method to calculate the path to the target and set's the head
     * segment's properties in order to arrive to the destination.
@@ -62,11 +68,15 @@ namespace boabubba
     void moveOnPath();
     bool findPathBFS(Location& start, Location& end);
 
-    sf::Vector2i m_targetPosition; // this position MUST be a grid position.
+    Actor* m_target; // this position MUST be a grid position.
 
     Segment* m_head;
 
     int m_currentFront; // Holds the index of the current front 'leader' segment.
+
+    bool m_tightFollow; // holds whether the snake will trail the target
+    bool m_restrictTargetTrail; // prevents adding elements to the target trail
+    std::queue<Grid> m_targetTrail; // hold the trail of grid positions traversed by the target
 
     // path finding helper variables
     std::unordered_map<int, Location> m_path;

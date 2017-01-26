@@ -16,20 +16,59 @@ namespace boabubba
     m_head = nullptr;
   }
 
-  const sf::Vector2i SegmentController::getTargetPosition()
+  const Actor* SegmentController::getTarget()
   {
-    return m_targetPosition;
+    return m_target;
   }
 
-  void SegmentController::setTargetPosition(const sf::Vector2i& position)
+  void SegmentController::setTarget(Actor* actor)
   {
-    m_targetPosition = position;
+    m_target = actor;
+  }
+
+  const bool SegmentController::shouldTightFollow() const
+  {
+    if (!m_head || !m_target)
+    {
+      return false;
+    }
+
+    bool result;
+
+    result = (m_tightFollow || m_head->getGrid().equals(m_target->getGridCurrent()));
+
+    // Previously, 'shouldTightFollow' would fail when the head segment was snapped (ready),
+    // because the grid position had NOT yet been updated.
+    // Now, we will check if (left, right, up, down) of the grid position is the target's grid current.
+    if (!result && isHeadReady())
+    {
+      // Create a grid object that is adjacent to the head segment's grid position.
+      const ActorProps::Direction dir = Actor::directionFor(m_head->getGrid(), m_target->getGridCurrent());
+      const Grid adjGrid = m_head->getGrid().getGridAdjacentTo(dir);
+      result = adjGrid.equals(m_target->getGridCurrent());
+    }
+
+    return result;
+  }
+
+  const bool SegmentController::isTightFollow() const
+  {
+    return m_tightFollow;
   }
 
   void SegmentController::setHead(Segment* segment)
   {
     if (!m_head)
       m_head = segment;
+  }
+
+  const bool SegmentController::isHeadReady() const
+  {
+    if (!m_head)
+    {
+      return false;
+    }
+    return (m_currentFront == 0 && m_head->isSnapped());
   }
 
   void SegmentController::init()
@@ -55,11 +94,10 @@ namespace boabubba
       m_segments.emplace_back(std::move(ptr));
     }
 
-    // TODO remove, for testing path finding
-    setTargetPosition(sf::Vector2i(5, 5));
-
     // Set the current front 'leader' segment to the 'head' segment.
     m_currentFront = 0;
+
+    m_tightFollow = false;
   }
 
   void SegmentController::snapAllSegments()
@@ -91,11 +129,11 @@ namespace boabubba
   void SegmentController::refreshSegmentLocations(const std::unique_ptr<Segment>& segment)
   {
     // Check if the segment has even moved
-    if (segment->getGrid() != segment->getGridPrevious())
+    if (segment->getGrid() != segment->getGridCurrent())
     {
-      // Check if another segment has already occupied the previous grid position
-      // Obtain the coordinates of the previous grid position
-      int coord = segment->getGridPrevious().getCoords();
+      // Check if another segment has already occupied the current grid position
+      // Obtain the coordinates of the current grid position
+      int coord = segment->getGridCurrent().getCoords();
       if (m_segmentMap.find(coord) != m_segmentMap.end() && m_segmentMap[coord] > 0)
       {
         m_segmentMap[coord]--;
@@ -135,12 +173,66 @@ namespace boabubba
 
   void SegmentController::preUpdate()
   {
-    if (!m_head) return;
+    if (!m_head || !m_target) return;
 
-    // Only allow the head segment to find a path when it is the front segment and snapped.
-    if (m_currentFront == 0 && m_head->isSnapped())
+    // Things to consider. When the player is sitting idle, and the snake is on top of the player, the player's current grid is pushed
+    // each iteration.
+    // When the head segment's grid is equal to the target's grid current, then 'tight follow'
+    if (shouldTightFollow())
+    {
+      moveTightFollow();
+    }
+    else if (isHeadReady()) // find a path when head segment is front and snapped
     {
       moveOnPath(); // finds the path to the target
+    }
+  }
+
+  void SegmentController::moveTightFollow()
+  {
+    m_tightFollow = true; // allow tight follow
+
+    // First check if we should still be in 'tight follow' mode.
+
+    // Note: We might possibly have to handle for the target skipping (moving really fast) grid positions
+    // We would need to enqueue all of the grid positions that were skipped.
+    if (m_targetTrail.empty())
+    {
+      m_targetTrail.push(Grid(m_target->getGridCurrent())); // add the target's grid current
+    }
+    else
+    {
+      // Add the target's grid current when the target has snapped to grid.
+      // We are checking the back of the queue because that will be the most recent grid position from the target.
+      if (!m_targetTrail.back().equals(m_target->getGridCurrent()))
+      {
+        m_targetTrail.push(Grid(m_target->getGridCurrent()));
+      }
+    }
+
+    if (isHeadReady())
+    {
+      // When we have snapped to the grid at the front of the queue, dequeue it.
+      if (m_head->getGrid().equals(m_targetTrail.front()))
+      {
+        m_targetTrail.pop();
+      }
+
+      ActorProps::Direction dir = Actor::directionFor(m_head->getGridCurrent(), m_head->getGrid());
+
+      if (!m_targetTrail.empty()) // update the grid when there is more
+      {
+        // todo possible bug: duplicate grid being pushed, this will cause the snake to hault because direction will be None
+        dir = Actor::directionFor(m_head->getGrid(), m_targetTrail.front());
+      }
+
+      m_head->updateGrid(dir);
+      m_head->setDirection(dir);
+
+      // The head uses the current grid because its grid position has been updated.
+      // As for the other segments (in the for loop), their grid position has NOT been updated yet, so we
+      // need to use the next grid for them.
+      m_head->setMarker(m_head->getGridCurrent());
     }
   }
 
@@ -149,8 +241,8 @@ namespace boabubba
     int startX = m_head->getGrid().x * GameProps::PROP_GRID_WIDTH; // the starting location of the head segment
     int startY = m_head->getGrid().y * GameProps::PROP_GRID_HEIGHT;
 
-    int endX = getTargetPosition().x * GameProps::PROP_GRID_WIDTH;
-    int endY = getTargetPosition().y * GameProps::PROP_GRID_HEIGHT;
+    int endX = getTarget()->getGridCurrent().x * GameProps::PROP_GRID_WIDTH;
+    int endY = getTarget()->getGridCurrent().y * GameProps::PROP_GRID_HEIGHT;
 
     Location start(startX, startY);
     Location end(endX, endY);
@@ -211,10 +303,10 @@ namespace boabubba
       m_head->setDirection(ActorProps::Direction::None);
     }
 
-    // The head uses the grid previous because its grid position has been updated.
+    // The head uses the current grid because its grid position has been updated.
     // As for the other segments (in the for loop), their grid position has NOT been updated yet, so we
-    // need to use the current grid for them.
-    m_head->setMarker(m_head->getGridPrevious());
+    // need to use the next grid for them.
+    m_head->setMarker(m_head->getGridCurrent());
   }
 
   bool SegmentController::findPathBFS(Location& start, Location& end)

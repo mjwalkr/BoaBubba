@@ -40,6 +40,9 @@ namespace boabubba
     void setGrid(const Grid& grid);
     const Grid& getGrid() const;
 
+    void setGridCurrent(const Grid& grid);
+    const Grid& getGridCurrent() const;
+
     void setGridPrevious(const Grid& grid);
     const Grid& getGridPrevious() const;
 
@@ -50,6 +53,8 @@ namespace boabubba
     void setDirection(const ActorProps::Direction& direction);
 
     const ActorProps::Direction& getDirection() const;
+
+    static const ActorProps::Direction directionFor(const Grid& from, const Grid& to);
 
     void setLocation(const Location& location);
 
@@ -80,6 +85,7 @@ namespace boabubba
     sf::Vector2i m_posInt;
     Grid m_grid;
     Grid m_gridPrevious;
+    Grid m_gridCurrent;
     sf::Vector2f m_speed;
     ActorProps::Direction m_direction;
     Location m_location;

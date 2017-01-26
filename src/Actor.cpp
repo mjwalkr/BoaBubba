@@ -20,6 +20,7 @@ namespace boabubba
     m_posInt.y = position.y * GameProps::PROP_GRID_HEIGHT;
 
     m_grid = position;
+    m_gridCurrent = position;
     m_gridPrevious = position;
   }
 
@@ -69,8 +70,16 @@ namespace boabubba
     return m_grid;
   }
 
-  void Actor::setGridPrevious(const Grid& grid)
+  void Actor::setGridCurrent(const Grid &grid){
+    m_gridCurrent = grid;
+  }
+
+  const Grid& Actor::getGridCurrent() const
   {
+    return m_gridCurrent;
+  }
+
+  void Actor::setGridPrevious(const Grid &grid){
     m_gridPrevious = grid;
   }
 
@@ -87,17 +96,13 @@ namespace boabubba
   void Actor::updateGrid(const ActorProps::Direction direction)
   {
     // Update the previous grid position.
-    m_gridPrevious = m_grid;
+    m_gridPrevious = m_gridCurrent;
+
+    // Update the current grid position
+    m_gridCurrent = m_grid;
 
     // Move the grid (x,y) position.
-    switch(direction)
-    {
-      case ActorProps::Direction::Left: m_grid.x -= 1; break;
-      case ActorProps::Direction::Right: m_grid.x += 1; break;
-      case ActorProps::Direction::Up: m_grid.y -= 1; break;
-      case ActorProps::Direction::Down: m_grid.y += 1; break;
-      default: break;
-    }
+    m_grid.move(direction);
   }
 
   void Actor::setDirection(const ActorProps::Direction& direction)
@@ -108,6 +113,37 @@ namespace boabubba
   const ActorProps::Direction& Actor::getDirection() const
   {
     return m_direction;
+  }
+
+  const ActorProps::Direction Actor::directionFor(const Grid &from, const Grid &to)
+  {
+    if (from.equals(to))
+    {
+      return ActorProps::Direction::None;
+    }
+    else if (from.x == to.x)
+    {
+      if (from.y > to.y)
+      {
+        return ActorProps::Direction::Up;
+      }
+      else
+      {
+        return ActorProps::Direction::Down;
+      }
+    }
+    else if (from.y == to.y)
+    {
+      if (from.x > to.x)
+      {
+        return ActorProps::Direction::Left;
+      }
+      else
+      {
+        return ActorProps::Direction::Right;
+      }
+    }
+    return ActorProps::Direction::None;
   }
 
   void Actor::setLocation(const Location &location)

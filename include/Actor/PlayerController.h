@@ -26,8 +26,11 @@ namespace boabubba
 
     PlayerController();
 
+    Player* getPlayer() const;
+
     const Grid& getPlayerGrid() const;
-    const Grid& getPlayerGridPrevious() const;
+    //const Grid& getPlayerGridPrevious() const;
+    const Grid& getPlayerGridCurrent() const;
     const sf::Vector2f& getPlayerPosition() const;
 
     void preUpdate();
