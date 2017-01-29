@@ -37,10 +37,18 @@ namespace boabubba
     SegmentController();
     ~SegmentController();
 
+    Segment* getHead();
+
+    void setSegmentsPosition(Grid grid);
+
     void setTarget(Actor* actor);
     const Actor* getTarget();
 
+    void setTightFollow(bool tightFollow);
     const bool isTightFollow() const;
+
+    void setTargetTrail(std::queue<Grid> trail);
+    std::queue<Grid> getTargetTrail() const;
 
     /**
      * Prepares the head segment for movement. Decides which type of movement the head segment
@@ -77,6 +85,7 @@ namespace boabubba
     bool m_tightFollow; // holds whether the snake will trail the target
     bool m_restrictTargetTrail; // prevents adding elements to the target trail
     std::queue<Grid> m_targetTrail; // hold the trail of grid positions traversed by the target
+    std::queue<Grid> m_targetTrailPrevious; // holds the last N grid positions that were popped.
 
     // path finding helper variables
     std::unordered_map<int, Location> m_path;

@@ -28,6 +28,10 @@ namespace boabubba
     void render();
     void lateUpdate();
 
+    PlayerController* getPlayerController();
+    SegmentController* getSegmentController();
+    DebugMessages& getDebugMessages();
+
   private:
     SegmentController segmentController;
     PlayerController playerController;

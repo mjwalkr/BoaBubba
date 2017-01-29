@@ -16,6 +16,19 @@ namespace boabubba
     m_head = nullptr;
   }
 
+  Segment* SegmentController::getHead()
+  {
+    return m_head;
+  }
+
+  void SegmentController::setSegmentsPosition(Grid grid)
+  {
+    for (auto& itr : m_segments)
+    {
+      itr->setPosition(grid);
+    }
+  }
+
   const Actor* SegmentController::getTarget()
   {
     return m_target;
@@ -24,6 +37,26 @@ namespace boabubba
   void SegmentController::setTarget(Actor* actor)
   {
     m_target = actor;
+  }
+
+  void SegmentController::setTargetTrail(std::queue<Grid> trail)
+  {
+    // clear the current trail
+    while (!m_targetTrail.empty())
+    {
+      m_targetTrail.pop();
+    }
+    // fill with the provided trail
+    while (!trail.empty())
+    {
+      m_targetTrail.push(Grid(trail.front()));
+      trail.pop();
+    }
+  }
+
+  std::queue<Grid> SegmentController::getTargetTrail() const
+  {
+    return m_targetTrail;
   }
 
   const bool SegmentController::shouldTightFollow() const
@@ -49,6 +82,11 @@ namespace boabubba
     }
 
     return result;
+  }
+
+  void SegmentController::setTightFollow(bool tightFollow)
+  {
+    m_tightFollow = tightFollow;
   }
 
   const bool SegmentController::isTightFollow() const
@@ -196,9 +234,19 @@ namespace boabubba
 
     // Note: We might possibly have to handle for the target skipping (moving really fast) grid positions
     // We would need to enqueue all of the grid positions that were skipped.
+    //
+    // todo bug 01/27/2017 @ 11:21 PM [FIXED]
+    // When the trail is empty and the head segment chooses to continue moving in the direction of the target,
+    // on the next iteration, the code within this condition will execute and cause the target's grid current
+    // (which could possibly be the same grid current that was popped from the trail on the previous iteration)
+    // to be pushed back onto the trail. This will then cause the head segment to 'jerk' back to the trail position
+    // that it already popped from the trail queue.
     if (m_targetTrail.empty())
     {
-      m_targetTrail.push(Grid(m_target->getGridCurrent())); // add the target's grid current
+      if (m_targetTrailPrevious.empty() || (!m_targetTrailPrevious.empty() && !m_targetTrailPrevious.front().equals(m_target->getGridCurrent())))
+      {
+        m_targetTrail.push(Grid(m_target->getGridCurrent())); // add the target's grid current
+      }
     }
     else
     {
@@ -215,14 +263,25 @@ namespace boabubba
       // When we have snapped to the grid at the front of the queue, dequeue it.
       if (m_head->getGrid().equals(m_targetTrail.front()))
       {
+        if (m_targetTrailPrevious.size() == 1) {
+          m_targetTrailPrevious.pop();
+        }
+        m_targetTrailPrevious.push(Grid(m_targetTrail.front()));
         m_targetTrail.pop();
       }
 
-      ActorProps::Direction dir = Actor::directionFor(m_head->getGridCurrent(), m_head->getGrid());
+      // When the target trail is empty, we will continue to move in the direction of the target's grid position.
+      ActorProps::Direction dir = Actor::directionFor(m_target->getGridCurrent(), m_target->getGrid());
 
       if (!m_targetTrail.empty()) // update the grid when there is more
       {
-        // todo possible bug: duplicate grid being pushed, this will cause the snake to hault because direction will be None
+        // todo bug: 01/27/2017 @ 5:47 PM [FIXED]
+        // 1. head segment snapped
+        // 2. there are no more grids in the target trail
+        // 3. head segment sets direction to the direction it was facing before becoming snapped
+        // 4. next iteration the target updates its grid
+        // 5. head segment not yet snapped and thus continues moving in the direction it previously set
+        // 6. once the head segment is snapped, it is misaligned with the trail
         dir = Actor::directionFor(m_head->getGrid(), m_targetTrail.front());
       }
 

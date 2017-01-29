@@ -23,6 +23,7 @@ namespace boabubba
     static const int LABEL_PLAYER_GRID = 0;
     static const int LABEL_PLAYER_POSITION = 1;
     static const int LABEL_SNAKE_TIGHT_FOLLOW = 2;
+    static const int LABEL_SNAKE_TARGET_TRAIL = 3;
 
     DebugMessages();
 

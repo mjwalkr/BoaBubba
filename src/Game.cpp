@@ -13,6 +13,21 @@ namespace boabubba
 
   }
 
+  PlayerController* Game::getPlayerController()
+  {
+    return &playerController;
+  }
+
+  SegmentController* Game::getSegmentController()
+  {
+    return &segmentController;
+  }
+
+  DebugMessages& Game::getDebugMessages()
+  {
+    return debugMessages;
+  }
+
   void Game::run()
   {
     while (window.isOpen())
@@ -56,14 +71,24 @@ namespace boabubba
     segmentController.render(window);
 
     std::ostringstream ss;
-    ss << "Player Grid: (" << playerController.getPlayerGrid().x << ", " << playerController.getPlayerGrid().y << ")";
-    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_GRID);
-    ss.str("");
-    ss << "Player Position: " << playerController.getPlayerPosition().x << ", " << playerController.getPlayerPosition().y << ")";
-    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_POSITION);
-    ss.str("");
-    ss << "Snake Tight Follow: " << segmentController.isTightFollow();
-    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_SNAKE_TIGHT_FOLLOW);
+    //ss << "Player Grid: (" << playerController.getPlayerGrid().x << ", " << playerController.getPlayerGrid().y << ")";
+    //debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_GRID);
+    //ss.str("");
+    //ss << "Player Position: " << playerController.getPlayerPosition().x << ", " << playerController.getPlayerPosition().y << ")";
+    //debugMessages.addMessage(ss.str(), DebugMessages::LABEL_PLAYER_POSITION);
+    //ss.str("");
+    //ss << "Snake Tight Follow: " << segmentController.isTightFollow();
+    //debugMessages.addMessage(ss.str(), DebugMessages::LABEL_SNAKE_TIGHT_FOLLOW);
+    //ss.str("");
+    ss << "Target Trail:\n";
+    std::queue<Grid> trail = segmentController.getTargetTrail();
+    while (!trail.empty())
+    {
+      ss << "[ " << trail.front().x << ", " << trail.front().y << " ]\n";
+      trail.pop();
+    }
+    debugMessages.addMessage(ss.str(), DebugMessages::LABEL_SNAKE_TARGET_TRAIL);
+
     debugMessages.render(window);
 
     window.display();
