@@ -17,6 +17,8 @@ namespace boabubba
     void preUpdate() override;
     void update() override;
     void postUpdate() override;
+
+    virtual void render(sf::RenderWindow &window) override;
   };
 }
 

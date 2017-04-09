@@ -131,32 +131,12 @@ namespace boabubba
     else
     {
       ActorProps::Direction direction = m_player->getDirection();
-      if (direction == ActorProps::Direction::Left && dir == ActorProps::Direction::Right)
+      if ((direction == ActorProps::Direction::Left && dir == ActorProps::Direction::Right) ||
+          (direction == ActorProps::Direction::Right && dir == ActorProps::Direction::Left) ||
+          (direction == ActorProps::Direction::Up && dir == ActorProps::Direction::Down) ||
+          (direction == ActorProps::Direction::Down && dir == ActorProps::Direction::Up))
       {
-        // TODO: This bug does not exist anymore
-        // Bug report: Switching back and forth between directions
-        // will cause a bug with the current grid value.
-        m_player->updateGrid(ActorProps::Direction::Right);
-        // If this is not added, then the player's posInt will remain the same, and on the next iteration, may be inconsistent with the player's position.
-        // For example: If the player's grid = (5, 6), gridPrev = (6, 6), then after the updateGrid method call, player's grid = (6, 6), gridPrev = (5, 6).
-        // However, the player's position may be in between grid spaces (in this example, 5 and 6). The posInt would remain (6, 6), which is the same as the grid.
-        // Thus, the player would be "snapped" even though it is in between grid spaces, and will snap to the grid if the player presses in the opposite direction on the next iteration.
-        m_player->setPosInt(m_player->getGridPosition(m_player->getGridCurrent()));
-      }
-      else if (direction == ActorProps::Direction::Right && dir == ActorProps::Direction::Left)
-      {
-        m_player->updateGrid(ActorProps::Direction::Left);
-        m_player->setPosInt(m_player->getGridPosition(m_player->getGridCurrent()));
-      }
-      else if (direction == ActorProps::Direction::Up && dir == ActorProps::Direction::Down)
-      {
-        m_player->updateGrid(ActorProps::Direction::Down);
-        m_player->setPosInt(m_player->getGridPosition(m_player->getGridCurrent()));
-      }
-      else if (direction == ActorProps::Direction::Down && dir == ActorProps::Direction::Up)
-      {
-        m_player->updateGrid(ActorProps::Direction::Up);
-        m_player->setPosInt(m_player->getGridPosition(m_player->getGridCurrent()));
+        m_player->moveGridFromDirection(dir);
       }
       else
       {

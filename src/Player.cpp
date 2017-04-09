@@ -9,13 +9,13 @@ namespace boabubba
   Player::Player(const Grid& startPosition)
   {
     setPosition(startPosition);
-    setSpeed(sf::Vector2f(1.f, 0.9f));
+    setSpeed(sf::Vector2f(1.3f, 1.3f));
     setDirection(ActorProps::Direction::None);
     setLocation(Location(startPosition.x * GameProps::PROP_GRID_WIDTH,
                          startPosition.y * GameProps::PROP_GRID_HEIGHT));
 
-    float x = static_cast<float>(getPosition().x);
-    float y = static_cast<float>(getPosition().y);
+    float x = getPosition().x;
+    float y = getPosition().y;
 
     m_sprite = sf::CircleShape();
     m_sprite.setFillColor(sf::Color::Red);
@@ -29,9 +29,26 @@ namespace boabubba
   void Player::update()
   {
     moveGridBased();
-    m_sprite.setPosition(getPosition().x, getPosition().y);
+    //move();
   }
 
   void Player::postUpdate()
   {}
+
+  // override
+  void Player::render(sf::RenderWindow &window)
+  {
+    // for debugging purposes, draw the grid space
+    /*
+    sf::RectangleShape rect;
+    rect.setFillColor(sf::Color::Cyan);
+    rect.setPosition(getGridPosition(getGridCurrent()).x, getGridPosition(getGridCurrent()).y);
+    rect.setSize(sf::Vector2f(GameProps::PROP_GRID_WIDTH, GameProps::PROP_GRID_HEIGHT));
+    window.draw(rect);
+    */
+
+    m_sprite.setPosition(getPosition().x, getPosition().y);
+
+    Actor::render(window);
+  }
 }

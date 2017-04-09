@@ -106,7 +106,7 @@ namespace boabubba
     {
       return false;
     }
-    return (m_currentFront == 0 && m_head->isSnapped());
+    return (m_currentFront == m_head->getIndex() && m_head->isSnapped());
   }
 
   void SegmentController::init()
@@ -123,11 +123,13 @@ namespace boabubba
 
     // TODO testing purposes for using only the head segment for front (leading)
     m_head->setFront(true);
+    m_head->setSnapped(true);
 
     // other
-    for (int i = 1; i < 10; ++i)
+    for (int i = 1; i < 20; ++i)
     {
       ptr.reset(new Segment(Grid(0, 0), m_segments.back().get()));
+      ptr->setSnapped(true);
       m_segmentMap[ptr->getGrid().getCoords()]++;
       m_segments.emplace_back(std::move(ptr));
     }
@@ -147,20 +149,18 @@ namespace boabubba
       for (auto& itr : m_segments)
       {
         // snap the segment to the grid
-        const sf::Vector2i gridPos = itr->getGridPosition(itr->getGrid());
-        itr->setPosition(sf::Vector2f(static_cast<float>(gridPos.x), static_cast<float>(gridPos.y)));
-        itr->setPosInt(sf::Vector2i(gridPos.x, gridPos.y));
+        itr->snapToGrid();
         // reset the dist of the segment so the dirty value will not remain
         itr->setDist(0.f);
         // set the direction (should we update the grid as well..)
         itr->setDirection(ActorProps::Direction::None);
         // reset the segment's front (leading) variable
         itr->setFront(false);
-
-        // update the segment locations map
+        // update the map that contains the location of each segment
         refreshSegmentLocations(itr);
       }
-      m_currentFront = 0;
+      // reset the front segment back to the head segment
+      m_currentFront = m_head->getIndex();
     }
   }
 
@@ -189,6 +189,8 @@ namespace boabubba
     }
   }
 
+  // Moves each segment towards their destination
+  // Non-head segments have their direction derived here
   void SegmentController::update()
   {
     for (auto& itr : m_segments)
@@ -197,18 +199,23 @@ namespace boabubba
       // We can't set the marker every time the update method is called, however.
       // Set the marker only when 'itr' is snapped (do not set the head segment's marker here).
       if (itr->getFollow() && itr->isSnapped())
+      {
         itr->setMarker(itr->getGrid());
+      }
 
       itr->update();
 
       // When the segment that (itr) is following is not moving.
       if (itr->isFront())
+      {
         m_currentFront = itr->getIndex();
+      }
     }
     // Snap the segments when the front segment is snapped.
     snapAllSegments();
   }
 
+  // Decides the direction of the head segment's next destination
   void SegmentController::preUpdate()
   {
     if (!m_head || !m_target) return;
@@ -226,6 +233,8 @@ namespace boabubba
     }
   }
 
+  // Allows the snake to closely follow behind the 'target' by storing each of the target's position
+  // into a stack, and popping each position off once the snake has made it to said position
   void SegmentController::moveTightFollow()
   {
     m_tightFollow = true; // allow tight follow
@@ -295,6 +304,8 @@ namespace boabubba
     }
   }
 
+  // Prepares the head segment's direction of travel by finding a path to the 'target' instance and setting
+  // the head segment's direction towards the next position on the path
   void SegmentController::moveOnPath()
   {
     int startX = m_head->getGrid().x * GameProps::PROP_GRID_WIDTH; // the starting location of the head segment
@@ -368,6 +379,7 @@ namespace boabubba
     m_head->setMarker(m_head->getGridCurrent());
   }
 
+  // Finds a path to the 'target' using breadth-first search algorithm
   bool SegmentController::findPathBFS(Location& start, Location& end)
   {
     if (start == end) return false;

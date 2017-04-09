@@ -23,6 +23,7 @@ namespace boabubba
       Down = sf::Keyboard::Down,
       Unknown = sf::Keyboard::Unknown
     };
+    // using CachedKeyboard = ActorProps::Direction; todo use 'using' instead of creating a separate enum
 
     PlayerController();
 

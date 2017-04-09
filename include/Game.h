@@ -9,8 +9,8 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
+#include <Kairos/Timestep.hpp>
 
-#include "Timestep.h"
 #include "GameProps.h"
 #include "Actor/PlayerController.h"
 #include "Actor/SegmentController.h"

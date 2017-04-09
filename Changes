@@ -1,0 +1,24 @@
+This is a list of changes that are pending to be included.
+
+1.
+Need to re-implement the Actor.isSnapped method. Currently, the method checks the position and the 'grid' location
+of the Actor. This is problematic because there are instances where the Player can reverse direction when not even snapped
+to the grid which will cause errors when deciding whether the instance is snapped or not.
+
+Also because the position is denoted as a 'float', there can be rounding inconsistencies when deciding if the Actor
+is actually 'snapped' to the grid.
+
+
+Solution:
+The Actor should only be snapped when it has reached its grid destination, denoted as 'grid' (not to be confused with previous grid and current grid,
+the former denoting the previous grid location the Actor came from, while the latter denotes the Actor's 'current' grid that it is on).
+
+When the Actor leaves the snapped position (when the Actor's position changes, from moving in a direction) then the Actor is no longer snapped.
+
+
+Concerns:
+1. Where all in the code does the Actor check whether it is snapped or not?
+2. Where should the Actor change the snapped property?
+
+
+2.

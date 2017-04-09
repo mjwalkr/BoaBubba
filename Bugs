@@ -1,0 +1,19 @@
+BoaBubba - Bug Report:
+
+1 - Alternating Player directional input in between grid positions
+Date found: 02/01/2017
+Date fixed: 02/07/2017
+Description:
+This issue will cause a bug with the current grid value.
+    If this is not added, then the player's posInt will remain the same, and on the next iteration, may be inconsistent with the player's position.
+    For example: If the player's grid = (5, 6), gridPrev = (6, 6), then after the updateGrid method call, player's grid = (6, 6), gridPrev = (5, 6).
+    However, the player's position may be in between grid spaces (in this example, 5 and 6). The posInt would remain (6, 6), which is the same as the grid.
+    Thus, the player would be "snapped" even though it is in between grid spaces, and will snap to the grid if the player presses in the opposite direction on the next iteration.
+
+2 - Alternating Player directional input when Snake is currently 'tight following' causes multiple positions to be enqueued in the SegmentController's trail queue.
+Date found: 02/01/2017
+Date fixed: 02/07/2017
+Solution:
+Instead of using the updateGrid method when the Player changes direction when NOT snapped to the grid, another method was created that would allow
+    us to move the Player's grid position in the direction opposite of the Player's current direction. Doing so prevented the 'grid current' and 'grid previous'
+    from unnecessarily being updated.
