@@ -9,6 +9,7 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -46,6 +47,8 @@ namespace boabubba
     void setGridPrevious(const Grid& grid);
     const Grid& getGridPrevious() const;
 
+    void moveGridFromDirection(const ActorProps::Direction direction);
+
     const Grid getGridPosition(const Grid& grid) const;
 
     void updateGrid(const ActorProps::Direction direction);
@@ -65,6 +68,8 @@ namespace boabubba
 
     const bool isVisible() const;
     const bool isSnapped() const;
+    void setSnapped(const bool snapped);
+    void snapToGrid();
 
     void moveGridBased();
 
@@ -89,6 +94,7 @@ namespace boabubba
     sf::Vector2f m_speed;
     ActorProps::Direction m_direction;
     Location m_location;
+    bool m_snapped;
     bool m_visible;
   };
 }

@@ -88,6 +88,11 @@ namespace boabubba
     return m_gridPrevious;
   }
 
+  void Actor::moveGridFromDirection(const ActorProps::Direction direction)
+  {
+    m_grid.move(direction);
+  }
+
   const Grid Actor::getGridPosition(const Grid& grid) const
   {
     return Grid(grid.x * GameProps::PROP_GRID_WIDTH, grid.y * GameProps::PROP_GRID_HEIGHT);
@@ -173,16 +178,34 @@ namespace boabubba
 
   const bool Actor::isSnapped() const
   {
-    sf::Vector2i pos = getGridPosition(m_grid);
-    return (m_posInt.x == pos.x) && (m_posInt.y == pos.y);
+    //sf::Vector2i pos = getGridPosition(m_grid);
+    //return (m_posInt.x == pos.x) && (m_posInt.y == pos.y);
+
+    // Questions whether the actor has made it to the destination grid AND that it is not actually in between grid positions (see PlayerController)
+    //return (m_posInt.x == pos.x) && (m_posInt.y == pos.y) && (static_cast<int>(m_position.x) == pos.x) && (static_cast<int>(m_position.y) == pos.y);
+    return m_snapped;
+  }
+
+  void Actor::setSnapped(const bool snapped)
+  {
+    m_snapped = snapped;
+  }
+
+  void Actor::snapToGrid()
+  {
+    const sf::Vector2i grid = getGridPosition(m_grid);
+    const sf::Vector2f pos = sf::Vector2f(static_cast<float>(grid.x), static_cast<float>(grid.y));
+    m_position = pos;
+    m_posInt = sf::Vector2i(grid.x, grid.y);
+    m_snapped = true;
   }
 
   void Actor::moveGridBased()
   {
-    const sf::Vector2i myGridPos = getGridPosition(getGrid());
+    const sf::Vector2i myGridPos = getGridPosition(m_grid);
 
     // Move the actor's position.
-    switch (getDirection())
+    switch (m_direction)
     {
       case ActorProps::Direction::Left: m_position.x = std::max(m_position.x - m_speed.x, float(myGridPos.x)); break;
       case ActorProps::Direction::Right: m_position.x = std::min(m_position.x + m_speed.x, float(myGridPos.x)); break;
@@ -192,13 +215,18 @@ namespace boabubba
     }
 
     // Snap the position when the actor has traversed to the grid position.
-    if (((m_position.x <= float(myGridPos.x)) && (getDirection() == ActorProps::Direction::Left)) ||
-        ((m_position.x >= float(myGridPos.x)) && (getDirection() == ActorProps::Direction::Right)) ||
-        ((m_position.y <= float(myGridPos.y)) && (getDirection() == ActorProps::Direction::Up)) ||
-        ((m_position.y >= float(myGridPos.y)) && (getDirection() == ActorProps::Direction::Down)))
+    if (((m_position.x <= float(myGridPos.x)) && (m_direction == ActorProps::Direction::Left)) ||
+        ((m_position.x >= float(myGridPos.x)) && (m_direction == ActorProps::Direction::Right)) ||
+        ((m_position.y <= float(myGridPos.y)) && (m_direction == ActorProps::Direction::Up)) ||
+        ((m_position.y >= float(myGridPos.y)) && (m_direction == ActorProps::Direction::Down)))
     {
-      setPosition(sf::Vector2f(static_cast<float>(myGridPos.x), static_cast<float>(myGridPos.y)));
-      setPosInt(sf::Vector2i(myGridPos.x, myGridPos.y));
+      snapToGrid();
+    }
+    else if (((m_direction == ActorProps::Direction::Left || m_direction == ActorProps::Direction::Right) && abs(m_speed.x) > 0) ||
+        ((m_direction == ActorProps::Direction::Up || m_direction == ActorProps::Direction::Down) && abs(m_speed.y) > 0))
+    {
+      // The direction is set, and the speed has caused the actor to move.
+      m_snapped = false;
     }
   }
 
