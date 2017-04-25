@@ -28,8 +28,7 @@ namespace boabubba
 
   void Player::update()
   {
-    moveGridBased();
-    //move();
+    move();
   }
 
   void Player::postUpdate()

@@ -59,6 +59,8 @@ namespace boabubba
     return m_targetTrail;
   }
 
+  // Once tight follow is set, it will never become unset until the 'target' is caught, or the head segment collides
+  // with a body segment. Another possible condition could be for when the 'target' speeds away from the segment (maybe via power-up)
   const bool SegmentController::shouldTightFollow() const
   {
     if (!m_head || !m_target)
@@ -102,11 +104,7 @@ namespace boabubba
 
   const bool SegmentController::isHeadReady() const
   {
-    if (!m_head)
-    {
-      return false;
-    }
-    return (m_currentFront == m_head->getIndex() && m_head->isSnapped());
+    return m_head && m_head->isSnapped() && m_currentFront == m_head->getIndex();
   }
 
   void SegmentController::init()
@@ -138,6 +136,7 @@ namespace boabubba
     m_currentFront = 0;
 
     m_tightFollow = false;
+    m_collided = false;
   }
 
   void SegmentController::snapAllSegments()
@@ -148,6 +147,10 @@ namespace boabubba
     {
       for (auto& itr : m_segments)
       {
+        // Skip the head segment if it is in the collided state.
+        if (itr->isCollided())
+          continue;
+
         // snap the segment to the grid
         itr->snapToGrid();
         // reset the dist of the segment so the dirty value will not remain
@@ -169,7 +172,7 @@ namespace boabubba
     // Check if the segment has even moved
     if (segment->getGrid() != segment->getGridCurrent())
     {
-      // Check if another segment has already occupied the current grid position
+      // When the segment is leaving a grid position, check if another segment has already occupied the current grid position
       // Obtain the coordinates of the current grid position
       int coord = segment->getGridCurrent().getCoords();
       if (m_segmentMap.find(coord) != m_segmentMap.end() && m_segmentMap[coord] > 0)
@@ -205,7 +208,7 @@ namespace boabubba
 
       itr->update();
 
-      // When the segment that (itr) is following is not moving.
+      // When the segment that (itr) is following is not moving. Let the front be the current segment (itr).
       if (itr->isFront())
       {
         m_currentFront = itr->getIndex();
@@ -218,11 +221,13 @@ namespace boabubba
   // Decides the direction of the head segment's next destination
   void SegmentController::preUpdate()
   {
-    if (!m_head || !m_target) return;
+    if (m_head && m_head->isCollided())
+    {
+      return;
+    }
 
-    // Things to consider. When the player is sitting idle, and the snake is on top of the player, the player's current grid is pushed
-    // each iteration.
-    // When the head segment's grid is equal to the target's grid current, then 'tight follow'
+    // 1.) When the head segment's grid is equal to the target's grid current, then 'tight follow'
+    // 2.) Things to consider. When the player is sitting idle, and the snake is on top of the player, the player's current grid is pushed each iteration.
     if (shouldTightFollow())
     {
       moveTightFollow();
@@ -233,17 +238,91 @@ namespace boabubba
     }
   }
 
+  // This is invoked after update(), and should handle collisions with other segments or with the 'target'
+  // This will be revised once I have more structure to how instances are updated
+  void SegmentController::postUpdate()
+  {
+    // Checking for player collision
+
+    // Checking for segment collision
+
+    // When the head segment is currently in motion
+    // When there is not a collision,
+    // todo need to implement more efficient way of checking if segment is at coordinate
+    if (!isHeadReady()) // todo this should probably just check if the head segment is NOT snapped
+    {
+      // Is the head segment approaching a grid position that is currently occupied by another segment?
+      // Is the head segment approaching a grid position that will is being approached by another segment?
+      int coord = m_head->getGrid().getCoords();
+      const Grid grid = m_head->getGrid();
+
+      // Testing for collision only when the head segment is nearing its destination
+      float dist = GameProps::PROP_GRID_WIDTH;
+      if (m_head->getDirection() == ActorProps::Direction::Left || m_head->getDirection() == ActorProps::Direction::Right) {
+        dist = abs(m_head->getGridPosition(grid).x - m_head->getPosition().x);
+      }
+      else if (m_head->getDirection() == ActorProps::Direction::Up || m_head->getDirection() == ActorProps::Direction::Down) {
+        dist = abs(m_head->getGridPosition(grid).y - m_head->getPosition().y);
+      }
+
+      if (dist < 8)
+      {
+        // Find first segment that is occupying the coordinate, and first segment that is leaving the coordinate
+        bool collision = false;
+        for (int i = 1; i < m_segments.size() && !collision; i++)
+        {
+          collision = m_segments[i]->getGrid().equals(m_head->getGrid());
+        }
+
+        if (collision)
+        {
+          if (!m_collided)
+          {
+            m_head->setCollided(true);
+            m_head->setDist(0.0f);
+            m_collided = true;
+            m_tightFollow = false;
+            m_success = false; // resets the path found
+          }
+        }
+        else // when there is no collision
+        {
+          const int currCoord = m_head->getGridCurrent().getCoords();
+          // All of the segments (besides the head segment) need to be snapped before allowing the head to resume.
+          if (m_collided && m_segmentMap.find(currCoord) != m_segmentMap.end() && (m_segmentMap[currCoord] == m_segments.size()))
+          {
+            m_head->setCollided(false);
+            m_collided = false;
+          }
+        }
+      }
+    }
+  }
+
   // Allows the snake to closely follow behind the 'target' by storing each of the target's position
   // into a stack, and popping each position off once the snake has made it to said position
   void SegmentController::moveTightFollow()
   {
-    m_tightFollow = true; // allow tight follow
+    if (!m_tightFollow)
+    {
+      // Reset the trails for the first time.
+      while (!m_targetTrail.empty())
+      {
+        m_targetTrail.pop();
+      }
 
-    // First check if we should still be in 'tight follow' mode.
+      while (!m_targetTrailPrevious.empty())
+      {
+        m_targetTrailPrevious.pop();
+      }
+
+      m_tightFollow = true; // allow tight follow
+    }
+
 
     // Note: We might possibly have to handle for the target skipping (moving really fast) grid positions
     // We would need to enqueue all of the grid positions that were skipped.
-    //
+
     // todo bug 01/27/2017 @ 11:21 PM [FIXED]
     // When the trail is empty and the head segment chooses to continue moving in the direction of the target,
     // on the next iteration, the code within this condition will execute and cause the target's grid current

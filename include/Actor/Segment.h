@@ -55,6 +55,11 @@ namespace boabubba
     void setFront(const bool front);
 
     /**
+     * Sets whether the segment has collided with another segment (or target?).
+     */
+    void setCollided(const bool collided);
+
+    /**
      * Updates the displacement
      * @param dist the displacement traveled by the segment
      */
@@ -79,6 +84,12 @@ namespace boabubba
      * @return whether this segment is the front 'leader' segment.
      */
     const bool isFront();
+
+    /**
+     * This method is only useful for the head segment, as only this segment can "collide" with other segments (and targets?).
+     * @return whether the segment has collided with another segment.
+     */
+    const bool isCollided() const;
 
   private:
     /**
@@ -115,6 +126,8 @@ namespace boabubba
     // Determines whether this segment is the 'leader' segment of all segments following after it.
     // Note: A segment other than the head will be 'leader' when the segments in front of it are unable to move.
     bool m_front;
+    // Determines whether the segment is currently colliding with another segment (or target?). This is used for the head segment only
+    bool m_collided;
     int m_index;
     float m_dist; // The displacement of the segment's movement.
   };

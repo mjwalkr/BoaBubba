@@ -59,6 +59,7 @@ namespace boabubba
       playerController.update();
       segmentController.update();
       // do something here
+      segmentController.postUpdate();
     }
   }
 

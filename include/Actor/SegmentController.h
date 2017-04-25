@@ -19,6 +19,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <vector>
+#include <list>
 #include <queue>
 #include <functional>
 #include <unordered_map>
@@ -56,6 +57,7 @@ namespace boabubba
      */
     void preUpdate();
     void update();
+    void postUpdate();
     // TODO - this method is temporary, as a tree structure will be used to draw the actors.
     void render(sf::RenderWindow& window);
 
@@ -92,6 +94,9 @@ namespace boabubba
     Location m_currLoc; // represents the current iteration (Location) in the found path.
     Location m_endLoc; // represents the end (Location) of the found path.
     bool m_success; // holds whether we have found a path to the target position.
+
+    // collision variables
+    bool m_collided;
 
     std::vector<std::unique_ptr<Segment>> m_segments;
     // holds map of segments; used for locating where segments are on the game field. each position mapped, holds the number of segments occupying the position
