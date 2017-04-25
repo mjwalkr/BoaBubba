@@ -23,21 +23,6 @@ namespace boabubba
     return m_player.get();
   }
 
-  const Grid& PlayerController::getPlayerGrid() const
-  {
-    return m_player->getGrid();
-  }
-
-  const Grid& PlayerController::getPlayerGridCurrent() const
-  {
-    return m_player->getGridCurrent();
-  }
-
-  const sf::Vector2f& PlayerController::getPlayerPosition() const
-  {
-    return m_player->getPosition();
-  }
-
   void PlayerController::preUpdate()
   {
     if (m_player)
@@ -53,12 +38,6 @@ namespace boabubba
       m_player->update();
     }
   }
-
-  void PlayerController::postUpdate()
-  {}
-
-  void PlayerController::moveFree()
-  {}
 
   void PlayerController::moveCached()
   {
@@ -109,12 +88,15 @@ namespace boabubba
       const bool screenU = (gridY - 1) < 0;
       const bool screenD = (gridY + 1) >= GameProps::PROP_SCREEN_HEIGHT / GameProps::PROP_GRID_HEIGHT;
 
-      if ((dir == ActorProps::Direction::Left && (screenL)) || (dir == ActorProps::Direction::Right && (screenR)) || (dir == ActorProps::Direction::Up && (screenU)) || (dir == ActorProps::Direction::Down && (screenD)))
+      if ((dir == ActorProps::Direction::Left && (screenL))
+          || (dir == ActorProps::Direction::Right && (screenR))
+          || (dir == ActorProps::Direction::Up && (screenU))
+          || (dir == ActorProps::Direction::Down && (screenD)))
       {
-        if ((m_player->getDirection() == ActorProps::Direction::Left && (screenL)) ||
-            (m_player->getDirection() == ActorProps::Direction::Right && (screenR)) ||
-            (m_player->getDirection() == ActorProps::Direction::Up && (screenU)) ||
-            (m_player->getDirection() == ActorProps::Direction::Down && (screenD)))
+        if ((m_player->getDirection() == ActorProps::Direction::Left && (screenL))
+            || (m_player->getDirection() == ActorProps::Direction::Right && (screenR))
+            || (m_player->getDirection() == ActorProps::Direction::Up && (screenU))
+            || (m_player->getDirection() == ActorProps::Direction::Down && (screenD)))
         {
           m_player->setDirection(ActorProps::Direction::None); // colliding head on with a tile
           m_cached = CachedKeyboard::Unknown;
@@ -125,16 +107,15 @@ namespace boabubba
         m_player->setDirection(dir);
         m_cached = CachedKeyboard::Unknown; // Remove the cached key.
       }
-
       m_player->updateGrid(m_player->getDirection());
     }
     else
     {
       ActorProps::Direction direction = m_player->getDirection();
-      if ((direction == ActorProps::Direction::Left && dir == ActorProps::Direction::Right) ||
-          (direction == ActorProps::Direction::Right && dir == ActorProps::Direction::Left) ||
-          (direction == ActorProps::Direction::Up && dir == ActorProps::Direction::Down) ||
-          (direction == ActorProps::Direction::Down && dir == ActorProps::Direction::Up))
+      if ((direction == ActorProps::Direction::Left && dir == ActorProps::Direction::Right)
+          || (direction == ActorProps::Direction::Right && dir == ActorProps::Direction::Left)
+          || (direction == ActorProps::Direction::Up && dir == ActorProps::Direction::Down)
+          || (direction == ActorProps::Direction::Down && dir == ActorProps::Direction::Up))
       {
         m_player->moveGridFromDirection(dir);
       }

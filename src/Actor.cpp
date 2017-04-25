@@ -178,11 +178,6 @@ namespace boabubba
 
   const bool Actor::isSnapped() const
   {
-    //sf::Vector2i pos = getGridPosition(m_grid);
-    //return (m_posInt.x == pos.x) && (m_posInt.y == pos.y);
-
-    // Questions whether the actor has made it to the destination grid AND that it is not actually in between grid positions (see PlayerController)
-    //return (m_posInt.x == pos.x) && (m_posInt.y == pos.y) && (static_cast<int>(m_position.x) == pos.x) && (static_cast<int>(m_position.y) == pos.y);
     return m_snapped;
   }
 
@@ -200,7 +195,7 @@ namespace boabubba
     m_snapped = true;
   }
 
-  void Actor::moveGridBased()
+  void Actor::move()
   {
     const sf::Vector2i myGridPos = getGridPosition(m_grid);
 
@@ -228,11 +223,6 @@ namespace boabubba
       // The direction is set, and the speed has caused the actor to move.
       m_snapped = false;
     }
-  }
-
-  void Actor::move()
-  {
-    // do nothing here
   }
 
   void Actor::render(sf::RenderWindow& window)

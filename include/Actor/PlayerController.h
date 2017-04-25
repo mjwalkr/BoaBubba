@@ -29,21 +29,12 @@ namespace boabubba
 
     Player* getPlayer() const;
 
-    const Grid& getPlayerGrid() const;
-    //const Grid& getPlayerGridPrevious() const;
-    const Grid& getPlayerGridCurrent() const;
-    const sf::Vector2f& getPlayerPosition() const;
-
     void preUpdate();
     void update();
     void postUpdate();
 
     void render(sf::RenderWindow& window);
 
-    // these are two types of movement, one of which the Player will have in the final game.
-    // moveFree - grid-less movement
-    // moveCached - grid movement
-    void moveFree();
     void moveCached();
 
   private:

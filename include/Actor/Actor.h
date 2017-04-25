@@ -71,8 +71,6 @@ namespace boabubba
     void setSnapped(const bool snapped);
     void snapToGrid();
 
-    void moveGridBased();
-
     virtual void move();
 
     virtual void preUpdate() = 0;
