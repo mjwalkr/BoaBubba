@@ -51,6 +51,8 @@ namespace boabubba
     void setTargetTrail(std::queue<Grid> trail);
     std::queue<Grid> getTargetTrail() const;
 
+    const Segment* findSegmentWithGrid(const Grid grid);
+
     /**
      * Prepares the head segment for movement. Decides which type of movement the head segment
      * should perform (follow target's calculated path; follow target's immediate path)

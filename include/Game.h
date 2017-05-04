@@ -33,12 +33,13 @@ namespace boabubba
     DebugMessages& getDebugMessages();
 
   private:
-    SegmentController segmentController;
-    PlayerController playerController;
-    DebugMessages debugMessages;
-
     sf::RenderWindow window;
     kairos::Timestep timeStep;
+    DebugMessages debugMessages;
+
+    GameMap gameMap;
+    SegmentController segmentController;
+    PlayerController playerController;
     const float dt;
   };
 }

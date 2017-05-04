@@ -11,21 +11,8 @@ namespace boabubba
   {
     window.create(sf::VideoMode(GameProps::PROP_SCREEN_WIDTH, GameProps::PROP_SCREEN_HEIGHT, 32), "BoaBubba");
 
-  }
-
-  PlayerController* Game::getPlayerController()
-  {
-    return &playerController;
-  }
-
-  SegmentController* Game::getSegmentController()
-  {
-    return &segmentController;
-  }
-
-  DebugMessages& Game::getDebugMessages()
-  {
-    return debugMessages;
+    playerController.setSegmentController(&segmentController);
+    segmentController.setTarget(playerController.getPlayer());
   }
 
   void Game::run()
@@ -52,13 +39,12 @@ namespace boabubba
     {
       playerController.preUpdate();
 
-      segmentController.setTarget(playerController.getPlayer());
-
       segmentController.preUpdate();
 
       playerController.update();
       segmentController.update();
       // do something here
+      playerController.postUpdate();
       segmentController.postUpdate();
     }
   }

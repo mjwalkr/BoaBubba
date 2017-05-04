@@ -9,6 +9,7 @@
 #include <SFML/Window/Keyboard.hpp>
 
 #include "Player.h"
+#include "SegmentController.h"
 
 namespace boabubba
 {
@@ -27,6 +28,8 @@ namespace boabubba
 
     PlayerController();
 
+    ~PlayerController();
+
     Player* getPlayer() const;
 
     void preUpdate();
@@ -37,11 +40,19 @@ namespace boabubba
 
     void moveCached();
 
+    void setSegmentController(SegmentController* controller);
+
   private:
     void init();
 
+    SegmentController* segmentController;
+
     std::unique_ptr<Player> m_player;
     CachedKeyboard m_cached;
+
+
+
+    bool m_collided;
   };
 }
 

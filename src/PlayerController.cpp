@@ -11,11 +11,16 @@ namespace boabubba
     init();
   }
 
+  PlayerController::~PlayerController()
+  {
+    segmentController = nullptr;
+  }
+
   void PlayerController::init()
   {
     m_player.reset(new Player(Grid(5, 5)));
-
     m_cached = CachedKeyboard::Unknown;
+    m_collided = false;
   }
 
   Player* PlayerController::getPlayer() const
@@ -36,6 +41,46 @@ namespace boabubba
     if (m_player)
     {
       m_player->update();
+    }
+  }
+
+  void PlayerController::postUpdate()
+  {
+    // We need to verify if the player is running into a segment. For prototype, use the segment map?
+    if (!m_player->isSnapped()) // todo this should probably just check if the head segment is NOT snapped
+    {
+      // Is the head segment approaching a grid position that is currently occupied by another segment?
+      // Is the head segment approaching a grid position that will is being approached by another segment?
+      const Grid grid = m_player->getGrid();
+
+      // Testing for collision only when the head segment is nearing its destination
+      float dist = GameProps::PROP_GRID_WIDTH;
+      if (m_player->getDirection() == ActorProps::Direction::Left || m_player->getDirection() == ActorProps::Direction::Right) {
+        dist = abs(m_player->getGridPosition(grid).x - m_player->getPosition().x);
+      }
+      else if (m_player->getDirection() == ActorProps::Direction::Up || m_player->getDirection() == ActorProps::Direction::Down) {
+        dist = abs(m_player->getGridPosition(grid).y - m_player->getPosition().y);
+      }
+
+      if (dist < 8)
+      {
+        // Find first segment that is occupying the coordinate, and first segment that is leaving the coordinate
+        bool collision = segmentController->findSegmentWithGrid(grid) != nullptr;
+
+        if (collision)
+        {
+          if (!m_collided)
+          {
+            //m_player->setCollided(true);
+            m_player->setSpeed(sf::Vector2f(0.1f, 0.1f));
+            m_collided = true;
+          }
+        }
+        else // when there is no collision
+        {
+
+        }
+      }
     }
   }
 
@@ -145,6 +190,11 @@ namespace boabubba
       m_player->setDirection(dir);
       m_cached = CachedKeyboard::Unknown;
     }
+  }
+
+  void PlayerController::setSegmentController(SegmentController* controller)
+  {
+    segmentController = controller;
   }
 
   void PlayerController::render(sf::RenderWindow &window)

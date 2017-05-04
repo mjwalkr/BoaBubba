@@ -96,6 +96,20 @@ namespace boabubba
     return m_tightFollow;
   }
 
+
+  const Segment* SegmentController::findSegmentWithGrid(const Grid grid)
+  {
+    for (auto& itr : m_segments)
+    {
+      if (itr->getGrid().equals(grid))
+      {
+        return itr.get();
+      }
+    }
+    return nullptr;
+  }
+
+
   void SegmentController::setHead(Segment* segment)
   {
     if (!m_head)
@@ -253,7 +267,6 @@ namespace boabubba
     {
       // Is the head segment approaching a grid position that is currently occupied by another segment?
       // Is the head segment approaching a grid position that will is being approached by another segment?
-      int coord = m_head->getGrid().getCoords();
       const Grid grid = m_head->getGrid();
 
       // Testing for collision only when the head segment is nearing its destination

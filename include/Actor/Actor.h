@@ -73,9 +73,9 @@ namespace boabubba
 
     virtual void move();
 
-    virtual void preUpdate() = 0;
-    virtual void update() = 0;
-    virtual void postUpdate() = 0;
+    virtual void preUpdate() { }; // todo place these in the Actor cpp file
+    virtual void update() { };
+    virtual void postUpdate() { };
     virtual void render(sf::RenderWindow &window) override;
 
   protected:
