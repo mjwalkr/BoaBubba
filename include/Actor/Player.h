@@ -19,6 +19,11 @@ namespace boabubba
     void postUpdate() override;
 
     virtual void render(sf::RenderWindow &window) override;
+
+    void setGround(const bool ground);
+
+  private:
+    bool m_ground;
   };
 }
 

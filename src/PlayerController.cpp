@@ -21,6 +21,10 @@ namespace boabubba
     m_player.reset(new Player(Grid(5, 5)));
     m_cached = CachedKeyboard::Unknown;
     m_collided = false;
+    m_ground = true;
+    m_zspeed = 0.f;
+    m_height = 0.f;
+    m_gravity = 0.1f;
   }
 
   Player* PlayerController::getPlayer() const
@@ -33,6 +37,26 @@ namespace boabubba
     if (m_player)
     {
       moveCached();
+      // jumping
+      if (m_ground)
+      {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+        {
+          m_zspeed -= 5.f;
+          m_ground = false;
+        }
+      }
+      if (!m_ground)
+      {
+        m_height -= m_zspeed;
+        m_zspeed += m_gravity; // apply gravity
+
+        if (m_height <= 0) {
+          m_height = 0.f;
+          m_zspeed = 0.f;
+          m_ground = true;
+        }
+      }
     }
   }
 
@@ -47,7 +71,7 @@ namespace boabubba
   void PlayerController::postUpdate()
   {
     // We need to verify if the player is running into a segment. For prototype, use the segment map?
-    if (!m_player->isSnapped()) // todo this should probably just check if the head segment is NOT snapped
+    if (!m_player->isSnapped() && m_ground) // todo we don't have to be completely on the ground for a collision to happen, right?
     {
       // Is the head segment approaching a grid position that is currently occupied by another segment?
       // Is the head segment approaching a grid position that will is being approached by another segment?
@@ -197,10 +221,16 @@ namespace boabubba
     segmentController = controller;
   }
 
+  const bool PlayerController::isGround() const
+  {
+    return m_ground;
+  }
+
   void PlayerController::render(sf::RenderWindow &window)
   {
     if (m_player)
     {
+      m_player->setGround(m_ground);
       m_player->render(window);
     }
   }

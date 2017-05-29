@@ -37,7 +37,6 @@ namespace boabubba
     kairos::Timestep timeStep;
     DebugMessages debugMessages;
 
-    GameMap gameMap;
     SegmentController segmentController;
     PlayerController playerController;
     const float dt;

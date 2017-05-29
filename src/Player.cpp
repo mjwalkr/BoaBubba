@@ -21,6 +21,8 @@ namespace boabubba
     m_sprite.setFillColor(sf::Color::Red);
     m_sprite.setRadius(GameProps::PROP_GRID_WIDTH / 2);
     m_sprite.setPosition(sf::Vector2f(x, y));
+
+    m_ground = true; // todo to remove
   }
 
   void Player::preUpdate()
@@ -34,6 +36,11 @@ namespace boabubba
   void Player::postUpdate()
   {}
 
+  void Player::setGround(const bool ground)
+  {
+    m_ground = ground;
+  }
+
   // override
   void Player::render(sf::RenderWindow &window)
   {
@@ -45,7 +52,7 @@ namespace boabubba
     rect.setSize(sf::Vector2f(GameProps::PROP_GRID_WIDTH, GameProps::PROP_GRID_HEIGHT));
     window.draw(rect);
     */
-
+    m_sprite.setFillColor((m_ground) ? sf::Color::Red : sf::Color::Yellow);
     m_sprite.setPosition(getPosition().x, getPosition().y);
 
     Actor::render(window);

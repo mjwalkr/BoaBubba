@@ -302,10 +302,13 @@ namespace boabubba
         {
           const int currCoord = m_head->getGridCurrent().getCoords();
           // All of the segments (besides the head segment) need to be snapped before allowing the head to resume.
+          // todo: figure out why this is the case. This should only happen when the snake collides with a 'swollen' segment.
+          // We want the head segment to be able to move as soon as there are no collisions in front of it.
           if (m_collided && m_segmentMap.find(currCoord) != m_segmentMap.end() && (m_segmentMap[currCoord] == m_segments.size()))
           {
             m_head->setCollided(false);
             m_collided = false;
+            m_head->setSpeed(sf::Vector2f(1.5f, 1.5f));
           }
         }
       }
@@ -330,6 +333,8 @@ namespace boabubba
       }
 
       m_tightFollow = true; // allow tight follow
+      // Set the speed for the head segment
+      m_head->setSpeed(m_target->getSpeed());
     }
 
 
@@ -386,6 +391,7 @@ namespace boabubba
         dir = Actor::directionFor(m_head->getGrid(), m_targetTrail.front());
       }
 
+      // We need to verify if the head segment is about to run into itself and there is a way out.
       m_head->updateGrid(dir);
       m_head->setDirection(dir);
 

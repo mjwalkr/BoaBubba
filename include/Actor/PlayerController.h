@@ -42,6 +42,8 @@ namespace boabubba
 
     void setSegmentController(SegmentController* controller);
 
+    const bool isGround() const;
+
   private:
     void init();
 
@@ -50,8 +52,10 @@ namespace boabubba
     std::unique_ptr<Player> m_player;
     CachedKeyboard m_cached;
 
-
-
+    float m_zspeed;
+    float m_height; // height off of the ground (0 denotes the ground)
+    float m_gravity;
+    bool m_ground;
     bool m_collided;
   };
 }
