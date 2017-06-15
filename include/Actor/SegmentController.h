@@ -23,6 +23,7 @@
 #include <queue>
 #include <functional>
 #include <unordered_map>
+#include <iostream>
 
 #include "Actor.h"
 #include "Segment.h"
@@ -50,6 +51,8 @@ namespace boabubba
 
     void setTargetTrail(std::queue<Grid> trail);
     std::queue<Grid> getTargetTrail() const;
+
+    const size_t getSegmentsSnapped() const;
 
     const Segment* findSegmentWithGrid(const Grid grid);
 
@@ -85,6 +88,7 @@ namespace boabubba
     Segment* m_head;
 
     int m_currentFront; // Holds the index of the current front 'leader' segment.
+    size_t m_segmentsSnapped; // holds number segments that are currently considered snapped.
 
     bool m_tightFollow; // holds whether the snake will trail the target
     bool m_restrictTargetTrail; // prevents adding elements to the target trail

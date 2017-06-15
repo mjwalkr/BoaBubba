@@ -10,6 +10,7 @@ namespace boabubba
     : m_follow(follow)
     , m_front(false)
     , m_collided(false)
+    , m_waitOnHead(false)
   {
     setIndex(); // automatically set the index
 
@@ -74,6 +75,10 @@ namespace boabubba
     m_collided = collided;
   }
 
+  void Segment::setWaitOnHead(const bool wait){
+    m_waitOnHead = wait;
+  }
+
   void Segment::setDist(const float dist)
   {
     m_dist = dist;
@@ -87,6 +92,11 @@ namespace boabubba
   const bool Segment::isCollided() const
   {
     return m_collided;
+  }
+
+  const bool Segment::isWaitOnHead() const
+  {
+    return m_waitOnHead;
   }
 
   void Segment::preUpdate()
@@ -140,7 +150,7 @@ namespace boabubba
     if (!m_follow) return;
 
     // When the segment has a direction to move in..
-    if ((getPosInt().x != getGridPosition(getGrid()).x) || (getPosInt().y != getGridPosition(getGrid()).y))
+    if (((getPosInt().x != getGridPosition(getGrid()).x) || (getPosInt().y != getGridPosition(getGrid()).y)) && !m_follow->isWaitOnHead())
     {
       const sf::Vector2i myGridCurrPos = getGridPosition(getGridCurrent());
       const float dist = m_follow->getDist();
@@ -160,6 +170,7 @@ namespace boabubba
         setSnapped(false);
       }
     }
+    setWaitOnHead(m_follow->isWaitOnHead());
     setDist(m_follow->getDist());
   }
 

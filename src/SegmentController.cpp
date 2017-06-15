@@ -96,6 +96,11 @@ namespace boabubba
     return m_tightFollow;
   }
 
+  const size_t SegmentController::getSegmentsSnapped() const
+  {
+    return m_segmentsSnapped;
+  }
+
 
   const Segment* SegmentController::findSegmentWithGrid(const Grid grid)
   {
@@ -148,6 +153,7 @@ namespace boabubba
 
     // Set the current front 'leader' segment to the 'head' segment.
     m_currentFront = 0;
+    m_segmentsSnapped = m_segments.size(); // todo note we set all segments snapped
 
     m_tightFollow = false;
     m_collided = false;
@@ -165,14 +171,17 @@ namespace boabubba
         if (itr->isCollided())
           continue;
 
-        // snap the segment to the grid
+        // Snap the segment to the grid and increment the count.
         itr->snapToGrid();
+        //m_segmentsSnapped++;
+
         // reset the dist of the segment so the dirty value will not remain
         itr->setDist(0.f);
         // set the direction (should we update the grid as well..)
         itr->setDirection(ActorProps::Direction::None);
         // reset the segment's front (leading) variable
         itr->setFront(false);
+        itr->setWaitOnHead(false);
         // update the map that contains the location of each segment
         refreshSegmentLocations(itr);
       }
@@ -212,10 +221,12 @@ namespace boabubba
   {
     for (auto& itr : m_segments)
     {
+      //bool snappedBeforeUpdate = itr->isSnapped();
+
       // Set the marker for the follow segment.
       // We can't set the marker every time the update method is called, however.
       // Set the marker only when 'itr' is snapped (do not set the head segment's marker here).
-      if (itr->getFollow() && itr->isSnapped())
+      if (itr->getFollow() && itr->isSnapped() && !itr->getFollow()->isWaitOnHead())
       {
         itr->setMarker(itr->getGrid());
       }
@@ -227,6 +238,13 @@ namespace boabubba
       {
         m_currentFront = itr->getIndex();
       }
+
+/*      if (snappedBeforeUpdate && !itr->isSnapped()) {
+        if (m_segmentsSnapped == 0) {
+          std::cout << "Error: Update method: Segments snapped equals 0, while trying to decrement the count." << std::endl;
+        }
+        m_segmentsSnapped--;
+      }*/
     }
     // Snap the segments when the front segment is snapped.
     snapAllSegments();
@@ -304,11 +322,19 @@ namespace boabubba
           // All of the segments (besides the head segment) need to be snapped before allowing the head to resume.
           // todo: figure out why this is the case. This should only happen when the snake collides with a 'swollen' segment.
           // We want the head segment to be able to move as soon as there are no collisions in front of it.
-          if (m_collided && m_segmentMap.find(currCoord) != m_segmentMap.end() && (m_segmentMap[currCoord] == m_segments.size()))
+          //if (m_collided && m_segmentMap.find(currCoord) != m_segmentMap.end() && (m_segmentMap[currCoord] == m_segments.size()))
+          bool bodySegmentsSnapped = true;
+          for (size_t i = 1; i < m_segments.size() && bodySegmentsSnapped; i++) {
+            if (!m_segments[i]->isSnapped()) {
+              bodySegmentsSnapped = false;
+            }
+          }
+          if (m_collided && bodySegmentsSnapped)
           {
             m_head->setCollided(false);
-            m_collided = false;
+            m_head->setWaitOnHead(true); // the head segment will now attempt to snap to the grid it was heading towards.
             m_head->setSpeed(sf::Vector2f(1.5f, 1.5f));
+            m_collided = false;
           }
         }
       }

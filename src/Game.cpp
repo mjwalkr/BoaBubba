@@ -53,6 +53,22 @@ namespace boabubba
   {
     window.clear();
 
+    for (int i = 32; i < 480; i += 32) {
+      sf::Vertex line[] = {
+          sf::Vertex(sf::Vector2f(0, i)),
+          sf::Vertex(sf::Vector2f(640, i))
+      };
+      window.draw(line, 2, sf::Lines);
+    }
+
+    for (int i = 32; i < 640; i += 32) {
+      sf::Vertex line[] = {
+          sf::Vertex(sf::Vector2f(i, 0)),
+          sf::Vertex(sf::Vector2f(i, 480))
+      };
+      window.draw(line, 2, sf::Lines);
+    }
+
     // update entities here
     playerController.render(window);
     segmentController.render(window);
@@ -67,6 +83,7 @@ namespace boabubba
     //ss << "Snake Tight Follow: " << segmentController.isTightFollow();
     //debugMessages.addMessage(ss.str(), DebugMessages::LABEL_SNAKE_TIGHT_FOLLOW);
     //ss.str("");
+
     ss << "Target Trail:\n";
     std::queue<Grid> trail = segmentController.getTargetTrail();
     while (!trail.empty())

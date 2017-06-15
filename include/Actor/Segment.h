@@ -60,6 +60,11 @@ namespace boabubba
     void setCollided(const bool collided);
 
     /**
+     * Sets whether the segment is recovering from collision (used only for the head segment)
+     */
+    void setWaitOnHead(const bool wait);
+
+    /**
      * Updates the displacement
      * @param dist the displacement traveled by the segment
      */
@@ -90,6 +95,14 @@ namespace boabubba
      * @return whether the segment has collided with another segment.
      */
     const bool isCollided() const;
+
+    /**
+     * This method is used for determining if the head segment is recovering from a collision. When the head segment is recovering
+     * from a collision, all other segments must be respectful and restrict movement until the head segment has snapped to the grid
+     * it was initially heading towards.
+     * @return
+     */
+    const bool isWaitOnHead() const;
 
   private:
     /**
@@ -128,6 +141,7 @@ namespace boabubba
     bool m_front;
     // Determines whether the segment is currently colliding with another segment (or target?). This is used for the head segment only
     bool m_collided;
+    bool m_waitOnHead; // the head segment is recovering from a collision
     int m_index;
     float m_dist; // The displacement of the segment's movement.
   };
